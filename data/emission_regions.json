@@ -1,0 +1,29 @@
+{
+  "regions": [
+    {
+      "id": "in_grid_avg",
+      "name": "India — national grid (typical)",
+      "co2_kg_per_kwh": 0.82
+    },
+    {
+      "id": "in_maharashtra",
+      "name": "India — Maharashtra",
+      "co2_kg_per_kwh": 0.78
+    },
+    {
+      "id": "in_karnataka",
+      "name": "India — Karnataka",
+      "co2_kg_per_kwh": 0.75
+    },
+    {
+      "id": "in_delhi",
+      "name": "India — Delhi NCR",
+      "co2_kg_per_kwh": 0.88
+    },
+    {
+      "id": "global_illustrative",
+      "name": "Global — illustrative low-carbon mix",
+      "co2_kg_per_kwh": 0.5
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "rooms": [
+    {
+      "id": "living",
+      "name": "Living",
+      "appliances": [
+        {
+          "instance_id": "279ea571-8e43-4fad-b78d-cbb862388d16",
+          "catalog_id": "ac_split_1",
+          "name": "Fan",
+          "active_w": 40.0,
+          "active_hours_daily": 11.0,
+          "standby_when_inactive": false,
+          "standby_w": null,
+          "standby_hours_daily": null
+        },
+        {
+          "instance_id": "f8728e0c-79d6-4daf-82c8-ada8d49a842e",
+          "catalog_id": "bulb_9w",
+          "name": "9W LED",
+          "active_w": 9.0,
+          "active_hours_daily": 10.0,
+          "standby_when_inactive": false,
+          "standby_w": null,
+          "standby_hours_daily": null
+        },
+        {
+          "instance_id": "193a9668-b60d-4048-9ca7-5a86a9043c46",
+          "catalog_id": "bulb_9w",
+          "name": "9W LED",
+          "active_w": 9.0,
+          "active_hours_daily": 10.0,
+          "standby_when_inactive": false,
+          "standby_w": null,
+          "standby_hours_daily": null
+        },
+        {
+          "instance_id": "a7fdb021-7c05-40b9-b0e1-9d527728bd6e",
+          "catalog_id": "tv_led_43",
+          "name": "LED ~43\"",
+          "active_w": 75.0,
+          "active_hours_daily": 2.0,
+          "standby_when_inactive": true,
+          "standby_w": 5.0,
+          "standby_hours_daily": 0.2
+        },
+        {
+          "instance_id": "39740038-7dfa-42c7-bcda-d714e17bb6f4",
+          "catalog_id": "custom",
+          "name": "Charging Ports",
+          "active_w": 40.0,
+          "active_hours_daily": 4.0,
+          "standby_when_inactive": false,
+          "standby_w": null,
+          "standby_hours_daily": null
+        }
+      ]
+    },
+    {
+      "id": "kitchen",
+      "name": "Kitchen",
+      "appliances": []
+    },
+    {
+      "id": "bedroom",
+      "name": "Bedroom",
+      "appliances": []
+    },
+    {
+      "id": "bathroom",
+      "name": "Bathroom",
+      "appliances": []
+    }
+  ]
+}

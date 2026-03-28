@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Phantom Load — Audit Usage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              surface: "#0f1419",
+              panel: "#1a222d",
+              border: "#2d3a4d",
+              accent: "#38bdf8",
+            },
+            fontSize: {
+              xs: ["0.8125rem", { lineHeight: "1.25rem" }],
+              sm: ["0.9375rem", { lineHeight: "1.375rem" }],
+              base: ["1.0625rem", { lineHeight: "1.5rem" }],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background-color: #0f1419;
+      }
+      #page-wire-bg {
+        background-color: #0f1419;
+        background-image: url("{{ url_for('static', filename='bg-wires.svg') }}");
+        background-repeat: repeat;
+        background-size: 800px 600px;
+        opacity: 0.92;
+      }
+      #page-wire-bg::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        background: radial-gradient(ellipse 120% 80% at 50% 0%, rgba(15, 20, 25, 0.55) 0%, transparent 55%),
+          radial-gradient(ellipse 100% 60% at 100% 100%, rgba(15, 20, 25, 0.45) 0%, transparent 45%);
+        pointer-events: none;
+      }
+      #header-section-title {
+        transition: opacity 0.22s ease;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen text-base leading-relaxed text-slate-100 antialiased">
+    <div
+      id="page-wire-bg"
+      class="pointer-events-none fixed inset-0 -z-10"
+      aria-hidden="true"
+    ></div>
+    <div
+      id="page-utensil-bg"
+      class="pointer-events-none fixed inset-0 -z-[9] overflow-hidden"
+      aria-hidden="true"
+    ></div>
+    <header
+      id="site-header"
+      class="fixed top-0 left-0 right-0 z-[55] flex items-center justify-between gap-3 border-b border-border bg-panel/90 px-4 py-3 backdrop-blur-md sm:px-5 sm:py-3.5"
+    >
+      <div class="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-3">
+        <span class="shrink-0 text-lg font-semibold tracking-tight text-sky-300 sm:text-xl"
+          >Phantom Load</span
+        >
+        <span
+          id="header-section-title"
+          class="min-w-0 truncate text-sm font-medium text-slate-400 sm:text-base"
+          >Audit Usage</span
+        >
+      </div>
+      <button
+        type="button"
+        id="nav-menu-toggle"
+        class="rounded-lg p-2.5 text-slate-400 hover:bg-white/5 hover:text-slate-200"
+        aria-label="Open page sections menu"
+        aria-expanded="false"
+        aria-controls="nav-drawer"
+      >
+        <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </header>
+
+    <div
+      id="nav-drawer-backdrop"
+      class="fixed inset-0 z-[60] hidden bg-black/50 backdrop-blur-sm"
+      aria-hidden="true"
+    ></div>
+    <nav
+      id="nav-drawer"
+      class="fixed bottom-0 right-0 top-14 z-[70] hidden w-[min(18rem,88vw)] overflow-y-auto border-l border-t border-border bg-panel/95 shadow-2xl shadow-sky-950/30 backdrop-blur-md sm:top-16"
+      aria-label="Jump to section"
+      aria-hidden="true"
+    >
+      <div class="flex items-center justify-between gap-2 border-b border-border px-4 py-3.5">
+        <span class="text-sm font-semibold tracking-tight text-slate-100">Sections</span>
+        <button
+          type="button"
+          id="nav-drawer-close"
+          class="rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-slate-200"
+          aria-label="Close menu"
+        >
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <ul class="border-b border-border/60 p-2 text-sm">
+        <li>
+          <a
+            href="#section-audit"
+            class="nav-jump block rounded-lg px-3 py-2.5 font-medium text-slate-200 hover:bg-sky-500/15 hover:text-sky-100"
+            >Audit Usage</a
+          >
+        </li>
+        <li>
+          <a
+            href="#section-usage-power"
+            class="nav-jump block rounded-lg px-3 py-2.5 font-medium text-slate-200 hover:bg-sky-500/15 hover:text-sky-100"
+            >Usage &amp; Power</a
+          >
+        </li>
+        <li>
+          <a
+            href="#swap-save-section"
+            class="nav-jump block rounded-lg px-3 py-2.5 font-medium text-slate-200 hover:bg-sky-500/15 hover:text-sky-100"
+            >Swap &amp; Save</a
+          >
+        </li>
+        <li>
+          <a
+            href="#whatif-section"
+            class="nav-jump block rounded-lg px-3 py-2.5 font-medium text-slate-200 hover:bg-sky-500/15 hover:text-sky-100"
+            >What If</a
+          >
+        </li>
+      </ul>
+    </nav>
+
+    <main class="relative z-10 mx-auto max-w-6xl px-5 pb-10 pt-[4.75rem] sm:px-8 sm:pt-20">
+      <header id="section-audit" class="mb-6 scroll-mt-28">
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h1 class="text-base font-semibold uppercase tracking-[0.18em] text-slate-500 sm:text-lg">
+            <span class="text-sky-400/90">Audit</span>
+            <span class="text-slate-600"> </span>
+            <span class="text-emerald-400/85">Usage</span>
+          </h1>
+          <span
+            class="rounded-full border border-sky-500/25 bg-sky-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-sky-300/90"
+            >Rooms &amp; devices</span
+          >
+        </div>
+        <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-500 sm:text-base">
+          <span class="font-medium text-sky-400/90">Map rooms</span>, drop in appliances, then open
+          <span class="font-medium text-sky-400/90">Usage</span><span class="text-slate-600"> &amp; </span><span class="font-medium text-emerald-400/85">Power</span> for costs, CO₂, and charts.
+        </p>
+      </header>
+
+      <section
+        class="rounded-xl border border-sky-800/35 bg-gradient-to-br from-sky-950/35 via-panel/70 to-emerald-950/20 p-5 shadow-lg shadow-sky-950/15 ring-1 ring-emerald-500/10 sm:p-6"
+        aria-label="Home energy tree"
+      >
+        <details class="group" open>
+          <summary
+            class="flex w-full cursor-pointer list-none items-center gap-2 text-base font-semibold text-slate-100 [&::-webkit-details-marker]:hidden"
+          >
+            <span class="inline-block text-lg text-sky-500 transition group-open:rotate-90">▸</span>
+            <span class="bg-gradient-to-r from-sky-200 to-emerald-200 bg-clip-text text-transparent">Home</span>
+            <button
+              type="button"
+              id="home-add-room"
+              class="ml-auto rounded-md border border-sky-500/35 bg-sky-500/10 px-2.5 py-1 text-sm font-semibold text-sky-300 hover:bg-sky-500/20"
+              title="Add room"
+            >
+              +
+            </button>
+          </summary>
+          <div id="room-tree" class="mt-4 space-y-2.5 border-l-2 border-sky-500/20 pl-4 ml-1"></div>
+        </details>
+      </section>
+
+      <section id="section-usage-power" class="mt-10 scroll-mt-28" aria-labelledby="usage-power-heading">
+        <h2
+          id="usage-power-heading"
+          class="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500"
+        >
+          <span class="text-sky-400/90">Usage</span>
+          <span class="text-slate-600">&amp;</span>
+          <span class="text-emerald-400/85">Power</span>
+        </h2>
+        <div
+          class="rounded-xl border border-sky-800/35 bg-gradient-to-br from-sky-950/20 via-panel/60 to-emerald-950/15 p-5 shadow-inner shadow-sky-950/10 ring-1 ring-emerald-500/10 lg:p-6"
+        >
+          <div class="grid gap-8 lg:grid-cols-2 lg:gap-10 lg:items-start">
+            <!-- Column 1: room, grid, tariff, chart -->
+            <div class="flex flex-col gap-5">
+              <div>
+                <h3 class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  Room
+                </h3>
+                <label for="usage-scope-select" class="sr-only">Show usage for</label>
+                <select
+                  id="usage-scope-select"
+                  class="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                >
+                  <option value="home">Home (entire house)</option>
+                </select>
+              </div>
+
+              <div>
+                <h3 class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  Show amounts for
+                </h3>
+                <label for="usage-period-select" class="sr-only">Time period for totals</label>
+                <select
+                  id="usage-period-select"
+                  class="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                >
+                  <option value="1d">Per day</option>
+                  <option value="1m">Per month (~30.44 days)</option>
+                  <option value="3m">Per 3 months (quarter)</option>
+                  <option value="6m">Per 6 months</option>
+                  <option value="1y" selected>Per year (365 days)</option>
+                </select>
+              </div>
+
+              <div>
+                <h3 class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  Grid / region (emission factor)
+                </h3>
+                <p class="mb-2 text-xs leading-relaxed text-slate-500">
+                  Pick the mix that best matches your state or national grid. The factor is kg CO₂ per kWh (illustrative).
+                </p>
+                <label for="settings-region" class="sr-only">Grid region</label>
+                <select
+                  id="settings-region"
+                  class="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                ></select>
+              </div>
+
+              <div class="flex flex-wrap items-end gap-3">
+                <div class="min-w-[6rem] flex-1 space-y-1">
+                  <label for="settings-rate" class="text-[11px] font-medium uppercase tracking-wide text-slate-500"
+                    >Tariff (₹ / kWh)</label
+                  >
+                  <input
+                    id="settings-rate"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    class="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                  />
+                </div>
+                <button
+                  type="button"
+                  id="settings-save"
+                  class="rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-sky-500"
+                >
+                  Save settings
+                </button>
+              </div>
+
+              <p id="usage-power-subtitle" class="text-xs leading-relaxed text-slate-500">
+                Totals scale from average daily use × days in the period. Hover the chart for the same period.
+              </p>
+
+              <div
+                id="totals-kwh-wrap"
+                class="hidden rounded-lg border border-border/80 bg-surface/50 px-3 py-2.5"
+              >
+                <span id="totals-kwh-label" class="text-[11px] font-medium uppercase tracking-wide text-slate-500">Energy (this period)</span>
+                <p id="totals-kwh" class="mt-1 font-mono text-sm text-slate-200"></p>
+                <p id="totals-kwh-daily" class="mt-1 font-mono text-[11px] text-slate-500"></p>
+              </div>
+
+              <div class="flex w-full max-w-sm flex-col items-stretch gap-4 sm:max-w-none">
+                <div
+                  class="relative mx-auto flex h-[220px] w-[220px] shrink-0 items-center justify-center sm:h-[240px] sm:w-[240px]"
+                >
+                  <canvas id="usage-pie-chart" class="max-h-full max-w-full"></canvas>
+                  <p
+                    id="usage-pie-empty"
+                    class="hidden absolute inset-0 flex items-center justify-center px-4 text-center text-sm leading-snug text-slate-500"
+                  >
+                    No energy mix to chart yet — add appliances in Audit Usage above.
+                  </p>
+                </div>
+                <ul
+                  id="usage-pie-legend"
+                  class="hidden w-full max-w-sm list-none space-y-2 rounded-lg border border-border/60 bg-surface/40 px-3 py-3 text-left sm:max-w-xs"
+                  aria-label="Pie chart categories"
+                ></ul>
+              </div>
+            </div>
+
+            <!-- Column 2: appliance cards + hero totals -->
+            <div class="flex min-h-0 flex-col gap-5">
+              <div>
+                <h3 class="mb-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  Appliances
+                </h3>
+                <p id="usage-right-empty" class="rounded-lg border border-dashed border-border bg-surface/30 px-4 py-10 text-center text-sm text-slate-500">
+                  No appliances in this selection. Choose a room or add devices above.
+                </p>
+                <div id="usage-breakdown-wrap" class="hidden space-y-3">
+                  <p
+                    id="usage-waste-summary"
+                    class="rounded-lg border border-amber-900/40 bg-amber-950/25 px-3 py-3 text-sm leading-relaxed text-amber-100/90"
+                  ></p>
+                  <div
+                    id="usage-breakdown-cards"
+                    class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+                  ></div>
+                </div>
+              </div>
+
+              <div id="usage-hero-stats" class="hidden grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div
+                  class="rounded-xl border border-sky-800/40 bg-gradient-to-br from-sky-950/50 to-surface/90 p-4 shadow-lg shadow-sky-950/20"
+                >
+                  <p class="text-[11px] font-semibold uppercase tracking-wider text-sky-300/90">
+                    Total electricity cost
+                  </p>
+                  <p id="hero-cost-period-tag" class="mt-1 text-[10px] uppercase tracking-wide text-sky-400/70"></p>
+                  <p id="hero-cost-yr" class="mt-1 text-2xl font-bold tracking-tight text-sky-200"></p>
+                  <p id="hero-cost-sub" class="mt-2 space-y-0.5 text-xs text-slate-400"></p>
+                </div>
+                <div
+                  class="rounded-xl border border-emerald-800/35 bg-gradient-to-br from-emerald-950/40 to-surface/90 p-4 shadow-lg shadow-emerald-950/15"
+                >
+                  <p class="text-[11px] font-semibold uppercase tracking-wider text-emerald-300/90">
+                    Total CO₂ emissions
+                  </p>
+                  <p id="hero-co2-period-tag" class="mt-1 text-[10px] uppercase tracking-wide text-emerald-400/70"></p>
+                  <p id="hero-co2-yr" class="mt-1 text-2xl font-bold tracking-tight text-emerald-200"></p>
+                  <p id="hero-co2-sub" class="mt-2 space-y-0.5 text-xs text-slate-400"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Swap & Save: quantified swaps for highest-waste appliances + dream purchase timelines -->
+      <section
+        id="swap-save-section"
+        class="mt-10 scroll-mt-28 hidden"
+        aria-labelledby="swap-save-heading"
+      >
+        <h2
+          id="swap-save-heading"
+          class="mb-4 text-base font-semibold uppercase tracking-[0.18em] text-slate-500 sm:text-lg"
+        >
+          <span class="text-amber-400/90">Swap</span>
+          <span class="text-slate-600">&amp;</span>
+          <span class="text-emerald-400/85">Save</span>
+        </h2>
+        <div
+          class="rounded-xl border border-amber-800/30 bg-gradient-to-br from-amber-950/25 via-panel/65 to-emerald-950/20 p-5 shadow-lg shadow-amber-950/10 ring-1 ring-emerald-500/10 sm:p-6"
+        >
+          <p class="mb-4 text-sm leading-relaxed text-slate-500 sm:text-base">
+            For <span class="font-medium text-amber-200/90">highest-waste</span> devices we compare your entry to
+            <span class="font-medium text-sky-400/90">other models in the same catalog category</span> and show where a
+            switch saves money (₹ and CO₂ per year). Then see what banking those savings could buy over time.
+          </p>
+          <p
+            id="swap-save-empty"
+            class="rounded-lg border border-dashed border-border bg-surface/40 px-4 py-8 text-center text-sm text-slate-500"
+          >
+            Add appliances in Audit Usage and pick a room scope above — we’ll rank waste and show swap ideas here.
+          </p>
+          <div id="swap-save-cards" class="grid grid-cols-1 gap-3 lg:grid-cols-3"></div>
+          <div
+            id="swap-save-dream"
+            class="mt-6 rounded-xl border border-sky-500/30 bg-gradient-to-br from-sky-950/35 via-slate-950/60 to-emerald-950/25 px-5 py-6 shadow-lg shadow-sky-950/20 ring-1 ring-emerald-500/10 sm:mt-7 sm:px-7 sm:py-8"
+          ></div>
+        </div>
+      </section>
+
+      <!-- What-if simulator: multi-appliance sliders (layout inspired by drag-to-reduce reference; themed sky/emerald) -->
+      <section id="whatif-section" class="mt-10 scroll-mt-28 hidden" aria-labelledby="whatif-heading">
+        <h2
+          id="whatif-heading"
+          class="mb-3 text-base font-semibold uppercase tracking-[0.18em] text-slate-500 sm:text-lg"
+        >
+          <span class="text-sky-400/90">What</span>
+          <span class="text-slate-600">-</span>
+          <span class="text-emerald-400/85">If</span>
+        </h2>
+        <div
+          class="rounded-xl border border-sky-800/35 bg-gradient-to-br from-sky-950/25 via-panel/65 to-emerald-950/20 p-5 shadow-inner shadow-sky-950/15 ring-1 ring-emerald-500/10 sm:p-6"
+        >
+          <p
+            class="mb-4 text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-400/85 sm:text-[11px]"
+          >
+            What-if simulator — drag to reduce usage
+          </p>
+          <p class="mb-4 text-sm leading-relaxed text-slate-500 sm:text-base">
+            Drag sliders for <span class="font-medium text-sky-300">any combination</span> of appliances. Savings add up;
+            below, see <span class="font-medium text-emerald-300">annual ₹ &amp; CO₂</span> and what you could afford with
+            that total (e.g. iPhone).
+          </p>
+          <p
+            id="whatif-empty"
+            class="hidden rounded-lg border border-dashed border-border bg-surface/40 px-4 py-8 text-center text-sm text-slate-500"
+          >
+            No appliances in this scope — choose Home or a room under Usage &amp; Power.
+          </p>
+          <div id="whatif-form" class="hidden">
+            <div class="overflow-x-auto rounded-lg border border-border/60 bg-surface/40">
+              <table class="w-full min-w-[min(100%,42rem)] border-collapse text-left text-sm">
+                <thead>
+                  <tr class="border-b border-border/80 bg-panel/50">
+                    <th
+                      class="px-3 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 sm:px-4"
+                      scope="col"
+                    >
+                      Appliance
+                    </th>
+                    <th
+                      class="px-2 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 sm:min-w-[14rem]"
+                      scope="col"
+                    >
+                      Reduce by (h / day)
+                    </th>
+                    <th
+                      class="px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider text-slate-500 sm:px-4"
+                      scope="col"
+                    >
+                      Annual saving
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="whatif-table-body" class="divide-y divide-border/50"></tbody>
+                <tfoot>
+                  <tr id="whatif-total-row" class="border-t border-sky-500/35 bg-gradient-to-r from-sky-950/40 to-emerald-950/25">
+                    <td class="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 sm:px-4" colspan="2">
+                      Combined (this scenario)
+                    </td>
+                    <td class="px-3 py-3 text-right sm:px-4">
+                      <div id="whatif-total-inr" class="text-base font-semibold tabular-nums text-sky-300 sm:text-lg"></div>
+                      <div id="whatif-total-co2" class="mt-0.5 text-[11px] tabular-nums text-emerald-300/90"></div>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <div
+              id="whatif-dream"
+              class="mt-6 rounded-xl border border-sky-500/30 bg-gradient-to-br from-sky-950/35 via-slate-950/60 to-emerald-950/25 px-5 py-6 shadow-lg shadow-sky-950/20 ring-1 ring-emerald-500/10 sm:mt-7 sm:px-7 sm:py-8"
+            ></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Catalog picker: opens from "+", closes on backdrop / Esc -->
+    <div
+      id="catalog-backdrop"
+      class="fixed inset-0 z-[58] hidden bg-black/60 backdrop-blur-sm"
+      aria-hidden="true"
+    ></div>
+    <div
+      id="catalog-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="catalog-title"
+      class="fixed left-1/2 top-1/2 z-[59] hidden w-[min(100%,28rem)] max-h-[min(90vh,34rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-border bg-panel p-5 shadow-2xl"
+    >
+      <div class="mb-3 flex items-center justify-between gap-2">
+        <h2 id="catalog-title" class="text-lg font-semibold text-slate-100">Appliance catalog</h2>
+        <button
+          type="button"
+          id="catalog-close"
+          class="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-slate-200"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+      </div>
+      <p id="catalog-hint" class="mb-3 text-base text-slate-500">Adding to <span class="text-slate-300"></span></p>
+
+      <div id="catalog-step-list" class="space-y-3">
+        <div class="space-y-1">
+          <div class="mb-1 flex items-center gap-2">
+            <span
+              id="catalog-category-icon"
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border/80 bg-surface/80 text-sky-400"
+              aria-hidden="true"
+            ></span>
+            <label for="catalog-category" class="text-sm text-slate-500">Category</label>
+          </div>
+          <select
+            id="catalog-category"
+            class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+          >
+            <option value="">Select category…</option>
+          </select>
+        </div>
+        <div class="space-y-1">
+          <label for="catalog-variant" class="text-sm text-slate-500">Model / wattage</label>
+          <select
+            id="catalog-variant"
+            disabled
+            class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="">Select category first…</option>
+          </select>
+        </div>
+        <button
+          type="button"
+          id="catalog-continue-btn"
+          disabled
+          class="w-full rounded-lg bg-sky-600 px-4 py-2.5 text-base font-medium text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Continue to usage &amp; power
+        </button>
+      </div>
+
+      <form id="catalog-detail-form" class="hidden space-y-3" novalidate>
+        <p id="catalog-selected-label" class="text-base font-medium text-slate-200"></p>
+        <div id="custom-name-row" class="hidden space-y-1">
+          <label for="custom-name" class="text-sm text-slate-500">Appliance name</label>
+          <input
+            id="custom-name"
+            type="text"
+            maxlength="120"
+            placeholder="e.g. Desk lamp"
+            class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 placeholder:text-slate-600 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+          />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label for="field-active-hours" class="text-sm text-slate-500">Active hours / day</label>
+            <input
+              id="field-active-hours"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              max="24"
+              step="any"
+              required
+              class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            />
+          </div>
+          <div class="space-y-1">
+            <label for="field-active-w" class="text-sm text-slate-500">Active power (W)</label>
+            <input
+              id="field-active-w"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="any"
+              required
+              class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            />
+          </div>
+        </div>
+        <label class="flex cursor-pointer items-center gap-2">
+          <input
+            type="checkbox"
+            id="standby-when-inactive"
+            checked
+            class="rounded border-border bg-surface text-sky-500 focus:ring-accent"
+          />
+          <span class="text-sm text-slate-400">Goes on standby when inactive</span>
+        </label>
+        <div id="catalog-standby-block" class="space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <label for="field-standby-hours" class="text-sm text-slate-500">Standby hours / day</label>
+              <input
+                id="field-standby-hours"
+                type="number"
+                inputmode="decimal"
+                min="0"
+                max="24"
+                step="any"
+                class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              />
+            </div>
+            <div class="space-y-1">
+              <label for="field-standby-w" class="text-sm text-slate-500">Standby power (W)</label>
+              <input
+                id="field-standby-w"
+                type="number"
+                inputmode="decimal"
+                min="0"
+                step="any"
+                class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              />
+            </div>
+          </div>
+        </div>
+        <p class="text-sm text-slate-600">
+          When standby applies, enter hours and phantom draw. Otherwise standby shows “–” in the audit.
+        </p>
+        <div class="flex gap-2 pt-1">
+          <button
+            type="button"
+            id="catalog-form-back"
+            class="flex-1 rounded-lg border border-border px-4 py-2.5 text-base text-slate-300 hover:bg-white/5"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            id="catalog-form-submit"
+            class="flex-1 rounded-lg bg-sky-600 px-4 py-2.5 text-base font-medium text-white hover:bg-sky-500"
+          >
+            Add to room
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Add room (Home +) -->
+    <div
+      id="room-backdrop"
+      class="fixed inset-0 z-[58] hidden bg-black/60 backdrop-blur-sm"
+      aria-hidden="true"
+    ></div>
+    <div
+      id="room-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="room-panel-title"
+      class="fixed left-1/2 top-1/2 z-[59] hidden w-[min(100%,24rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-panel p-5 shadow-2xl"
+    >
+      <div class="mb-3 flex items-center justify-between gap-2">
+        <h2 id="room-panel-title" class="text-lg font-semibold text-slate-100">Add room</h2>
+        <button
+          type="button"
+          id="room-close"
+          class="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-slate-200"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+      </div>
+      <form id="room-form" class="space-y-3" novalidate>
+        <input type="hidden" id="room-edit-id" value="" />
+        <div class="space-y-1">
+          <label for="room-name-input" class="text-sm text-slate-500">Room name</label>
+          <input
+            id="room-name-input"
+            type="text"
+            maxlength="120"
+            required
+            placeholder="e.g. Study, Garage"
+            class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 placeholder:text-slate-600 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+          />
+        </div>
+        <button
+          type="submit"
+          id="room-submit-btn"
+          class="w-full rounded-lg bg-sky-600 px-4 py-2.5 text-base font-medium text-white hover:bg-sky-500"
+        >
+          Add room
+        </button>
+      </form>
+    </div>
+
+    <!-- Edit appliance -->
+    <div
+      id="edit-appliance-backdrop"
+      class="fixed inset-0 z-[58] hidden bg-black/60 backdrop-blur-sm"
+      aria-hidden="true"
+    ></div>
+    <div
+      id="edit-appliance-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-appliance-title"
+      class="fixed left-1/2 top-1/2 z-[59] hidden w-[min(100%,28rem)] max-h-[min(90vh,34rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-border bg-panel p-5 shadow-2xl"
+    >
+      <div class="mb-3 flex items-center justify-between gap-2">
+        <h2 id="edit-appliance-title" class="text-lg font-semibold text-slate-100">Edit appliance</h2>
+        <button
+          type="button"
+          id="edit-appliance-close"
+          class="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-slate-200"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+      </div>
+      <form id="edit-appliance-form" class="space-y-3" novalidate>
+        <input type="hidden" id="edit-appliance-room-id" />
+        <input type="hidden" id="edit-appliance-instance-id" />
+        <div class="space-y-1">
+          <label for="edit-appliance-name" class="text-sm text-slate-500">Name</label>
+          <input
+            id="edit-appliance-name"
+            type="text"
+            maxlength="120"
+            required
+            class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+          />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label for="edit-active-hours" class="text-sm text-slate-500">Active hours / day</label>
+            <input
+              id="edit-active-hours"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="any"
+              required
+              class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            />
+          </div>
+          <div class="space-y-1">
+            <label for="edit-active-w" class="text-sm text-slate-500">Active power (W)</label>
+            <input
+              id="edit-active-w"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="any"
+              required
+              class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            />
+          </div>
+        </div>
+        <label class="flex cursor-pointer items-center gap-2">
+          <input
+            type="checkbox"
+            id="edit-standby-toggle"
+            class="rounded border-border bg-surface text-sky-500 focus:ring-accent"
+          />
+          <span class="text-sm text-slate-400">Goes on standby when inactive</span>
+        </label>
+        <div id="edit-standby-block" class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label for="edit-standby-hours" class="text-sm text-slate-500">Standby hours / day</label>
+            <input
+              id="edit-standby-hours"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="any"
+              class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            />
+          </div>
+          <div class="space-y-1">
+            <label for="edit-standby-w" class="text-sm text-slate-500">Standby power (W)</label>
+            <input
+              id="edit-standby-w"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="any"
+              class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            />
+          </div>
+        </div>
+        <button
+          type="submit"
+          class="w-full rounded-lg bg-sky-600 px-4 py-2.5 text-base font-medium text-white hover:bg-sky-500"
+        >
+          Save changes
+        </button>
+      </form>
+    </div>
+
+    <script>
+      (function () {
+        const toggle = document.getElementById("nav-menu-toggle");
+        const backdrop = document.getElementById("nav-drawer-backdrop");
+        const drawer = document.getElementById("nav-drawer");
+        const closeBtn = document.getElementById("nav-drawer-close");
+
+        function openNav() {
+          backdrop?.classList.remove("hidden");
+          drawer?.classList.remove("hidden");
+          backdrop?.setAttribute("aria-hidden", "false");
+          drawer?.setAttribute("aria-hidden", "false");
+          toggle?.setAttribute("aria-expanded", "true");
+        }
+
+        function closeNav() {
+          backdrop?.classList.add("hidden");
+          drawer?.classList.add("hidden");
+          backdrop?.setAttribute("aria-hidden", "true");
+          drawer?.setAttribute("aria-hidden", "true");
+          toggle?.setAttribute("aria-expanded", "false");
+        }
+
+        toggle?.addEventListener("click", () => {
+          const open = drawer && !drawer.classList.contains("hidden");
+          if (open) closeNav();
+          else openNav();
+        });
+        backdrop?.addEventListener("click", closeNav);
+        closeBtn?.addEventListener("click", closeNav);
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && drawer && !drawer.classList.contains("hidden")) closeNav();
+        });
+
+        document.querySelectorAll("a.nav-jump").forEach((a) => {
+          a.addEventListener("click", (e) => {
+            e.preventDefault();
+            const id = a.getAttribute("href")?.replace(/^#/, "");
+            const el = id ? document.getElementById(id) : null;
+            closeNav();
+            if (el) {
+              el.scrollIntoView({ behavior: "smooth", block: "start" });
+              setTimeout(updateActiveSectionTitle, 500);
+            }
+          });
+        });
+
+        const headerTitleEl = document.getElementById("header-section-title");
+        const SECTION_HEADINGS = [
+          { id: "section-audit", label: "Audit Usage" },
+          { id: "section-usage-power", label: "Usage & Power" },
+          { id: "swap-save-section", label: "Swap & Save" },
+          { id: "whatif-section", label: "What If" },
+        ];
+        let activeHeaderLabel = SECTION_HEADINGS[0].label;
+        let headerFadeTimer = null;
+
+        function sectionIsUsable(el) {
+          if (!el) return false;
+          if (el.classList.contains("hidden")) return false;
+          const st = window.getComputedStyle(el);
+          return st.display !== "none" && st.visibility !== "hidden";
+        }
+
+        function updateActiveSectionTitle() {
+          const headerOffset = 76;
+          let chosen = SECTION_HEADINGS[0];
+          for (const s of SECTION_HEADINGS) {
+            const el = document.getElementById(s.id);
+            if (!sectionIsUsable(el)) continue;
+            const top = el.getBoundingClientRect().top;
+            if (top <= headerOffset) chosen = s;
+          }
+          if (chosen.label === activeHeaderLabel) return;
+          activeHeaderLabel = chosen.label;
+          if (!headerTitleEl) return;
+          headerTitleEl.style.opacity = "0";
+          clearTimeout(headerFadeTimer);
+          headerFadeTimer = setTimeout(() => {
+            headerTitleEl.textContent = chosen.label;
+            headerTitleEl.style.opacity = "1";
+          }, 140);
+        }
+
+        window.addEventListener("scroll", updateActiveSectionTitle, { passive: true });
+        window.addEventListener("resize", updateActiveSectionTitle);
+        window.addEventListener("phantom-section-layout", updateActiveSectionTitle);
+        updateActiveSectionTitle();
+      })();
+    </script>
+    <script src="{{ url_for('static', filename='js/background-icons.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/audit.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/usage-power.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/swap-whatif.js') }}"></script>
+  </body>
+</html>

@@ -1,0 +1,687 @@
+(function () {
+  const treeEl = document.getElementById("room-tree");
+  const backdrop = document.getElementById("catalog-backdrop");
+  const panel = document.getElementById("catalog-panel");
+  const catalogTitle = document.getElementById("catalog-title");
+  const catalogCategory = document.getElementById("catalog-category");
+  const catalogCategoryIconEl = document.getElementById("catalog-category-icon");
+  const catalogVariant = document.getElementById("catalog-variant");
+  const catalogContinueBtn = document.getElementById("catalog-continue-btn");
+  const catalogStepList = document.getElementById("catalog-step-list");
+  const catalogClose = document.getElementById("catalog-close");
+  const catalogHint = document.querySelector("#catalog-hint span");
+  const detailForm = document.getElementById("catalog-detail-form");
+  const customNameRow = document.getElementById("custom-name-row");
+  const customNameInput = document.getElementById("custom-name");
+  const selectedLabel = document.getElementById("catalog-selected-label");
+  const fieldActiveHours = document.getElementById("field-active-hours");
+  const fieldStandbyHours = document.getElementById("field-standby-hours");
+  const fieldActiveW = document.getElementById("field-active-w");
+  const fieldStandbyW = document.getElementById("field-standby-w");
+  const standbyWhenInactive = document.getElementById("standby-when-inactive");
+  const catalogFormBack = document.getElementById("catalog-form-back");
+  const homeAddRoom = document.getElementById("home-add-room");
+  const roomBackdrop = document.getElementById("room-backdrop");
+  const roomPanel = document.getElementById("room-panel");
+  const roomClose = document.getElementById("room-close");
+  const roomForm = document.getElementById("room-form");
+  const roomNameInput = document.getElementById("room-name-input");
+  const roomEditId = document.getElementById("room-edit-id");
+  const roomSubmitBtn = document.getElementById("room-submit-btn");
+  const roomPanelTitle = document.getElementById("room-panel-title");
+
+  const editBackdrop = document.getElementById("edit-appliance-backdrop");
+  const editPanel = document.getElementById("edit-appliance-panel");
+  const editClose = document.getElementById("edit-appliance-close");
+  const editForm = document.getElementById("edit-appliance-form");
+  const editRoomId = document.getElementById("edit-appliance-room-id");
+  const editInstanceId = document.getElementById("edit-appliance-instance-id");
+  const editName = document.getElementById("edit-appliance-name");
+  const editActiveH = document.getElementById("edit-active-hours");
+  const editActiveW = document.getElementById("edit-active-w");
+  const editStandbyToggle = document.getElementById("edit-standby-toggle");
+  const editStandbyH = document.getElementById("edit-standby-hours");
+  const editStandbyW = document.getElementById("edit-standby-w");
+  const editStandbyBlock = document.getElementById("edit-standby-block");
+
+  const ICON_PEN =
+    '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>';
+  const ICON_TRASH =
+    '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>';
+
+  /** Heroicons-style outline paths (24) for catalog categories */
+  const CATEGORY_ICON_PATHS = {
+    bulb:
+      "M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z",
+    tv: "M6 20.25h12m-7.5-3v3m4.5-3v3m-9-1.5h10.5A2.25 2.25 0 0020.25 18V6.75A2.25 2.25 0 0018 4.5H6A2.25 2.25 0 003.75 6.75V18A2.25 2.25 0 006 20.25z",
+    refrigerator:
+      "M4.5 4.5h15A1.5 1.5 0 0121 6v12a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 18V6a1.5 1.5 0 011.5-1.5z M7.5 9h9 M7.5 13.5h9",
+    microwave:
+      "M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.047 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z",
+    washing_machine:
+      "M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99",
+    ac: "M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z",
+    custom: "M12 4.5v15m7.5-7.5h-15",
+    default:
+      "M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9",
+  };
+
+  function categoryIconSvg(categoryId) {
+    const d = CATEGORY_ICON_PATHS[categoryId] || CATEGORY_ICON_PATHS.default;
+    return `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="${d}"/></svg>`;
+  }
+
+  function setCatalogCategoryIcon(categoryId) {
+    if (!catalogCategoryIconEl) return;
+    catalogCategoryIconEl.innerHTML = categoryIconSvg(categoryId || "default");
+  }
+
+  let catalog = { categories: [] };
+  let targetRoomId = null;
+  /** @type {null | { id: string, name: string, default_active_w: number, default_standby_w: number }} */
+  let pendingItem = null;
+
+  async function fetchJSON(url, options) {
+    const r = await fetch(url, {
+      ...options,
+      headers: { "Content-Type": "application/json", ...(options && options.headers) },
+    });
+    const text = await r.text();
+    let data;
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      throw new Error(text || r.statusText);
+    }
+    if (!r.ok) throw new Error(data.error || text || r.statusText);
+    return data;
+  }
+
+  function standbyEnabled(a) {
+    return a.standby_when_inactive !== false;
+  }
+
+  function showCatalogListStep() {
+    pendingItem = null;
+    if (catalogTitle) catalogTitle.textContent = "Appliance catalog";
+    catalogStepList.classList.remove("hidden");
+    detailForm.classList.add("hidden");
+    resetCatalogPicker();
+  }
+
+  function resetVariantDropdown() {
+    if (!catalogVariant) return;
+    catalogVariant.innerHTML = "";
+    const opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "Select category first…";
+    catalogVariant.appendChild(opt0);
+    catalogVariant.disabled = true;
+    syncCatalogContinueButton();
+  }
+
+  function resetCatalogPicker() {
+    if (catalogCategory) catalogCategory.value = "";
+    setCatalogCategoryIcon("default");
+    resetVariantDropdown();
+  }
+
+  function syncCatalogContinueButton() {
+    if (!catalogContinueBtn || !catalogCategory || !catalogVariant) return;
+    const ok = Boolean(catalogCategory.value && catalogVariant.value);
+    catalogContinueBtn.disabled = !ok;
+  }
+
+  function onCatalogCategoryChange() {
+    if (!catalogCategory || !catalogVariant) return;
+    const cid = catalogCategory.value;
+    setCatalogCategoryIcon(cid || "default");
+    catalogVariant.innerHTML = "";
+    if (!cid) {
+      resetVariantDropdown();
+      return;
+    }
+    const cat = (catalog.categories || []).find((c) => c.id === cid);
+    if (!cat || !cat.items?.length) {
+      resetVariantDropdown();
+      return;
+    }
+    catalogVariant.disabled = false;
+    const ph = document.createElement("option");
+    ph.value = "";
+    ph.textContent = "Select model / wattage…";
+    catalogVariant.appendChild(ph);
+    for (const it of cat.items) {
+      const o = document.createElement("option");
+      o.value = it.id;
+      o.textContent = `${it.name} (${it.default_active_w} W)`;
+      catalogVariant.appendChild(o);
+    }
+    if (cat.items.length === 1) {
+      catalogVariant.value = cat.items[0].id;
+    }
+    syncCatalogContinueButton();
+  }
+
+  function buildCategoryDropdown() {
+    if (!catalogCategory) return;
+    catalogCategory.innerHTML = "";
+    const ph = document.createElement("option");
+    ph.value = "";
+    ph.textContent = "Select category…";
+    catalogCategory.appendChild(ph);
+    for (const c of catalog.categories || []) {
+      const o = document.createElement("option");
+      o.value = c.id;
+      o.textContent = c.name;
+      catalogCategory.appendChild(o);
+    }
+    resetCatalogPicker();
+  }
+
+  function continueToUsageStep() {
+    const cid = catalogCategory?.value;
+    const vid = catalogVariant?.value;
+    if (!cid || !vid) return;
+    const cat = (catalog.categories || []).find((c) => c.id === cid);
+    const item = cat?.items?.find((i) => i.id === vid);
+    if (!item || !cat) return;
+    showDetailStep(item, cat);
+  }
+
+  function syncCatalogStandby() {
+    const on = standbyWhenInactive.checked;
+    const block = document.getElementById("catalog-standby-block");
+    block.classList.toggle("opacity-40", !on);
+    block.classList.toggle("pointer-events-none", !on);
+    fieldStandbyHours.disabled = !on;
+    fieldStandbyW.disabled = !on;
+  }
+
+  function syncEditStandby() {
+    const on = editStandbyToggle.checked;
+    editStandbyBlock.classList.toggle("opacity-40", !on);
+    editStandbyBlock.classList.toggle("pointer-events-none", !on);
+    editStandbyH.disabled = !on;
+    editStandbyW.disabled = !on;
+  }
+
+  function showDetailStep(item, cat) {
+    pendingItem = item;
+    const categoryName = cat && cat.name ? cat.name : "";
+    const catId = cat && cat.id ? cat.id : "";
+    if (catalogTitle) catalogTitle.textContent = "Usage & power";
+    catalogStepList.classList.add("hidden");
+    detailForm.classList.remove("hidden");
+    const line = categoryName ? `${categoryName} › ${item.name}` : item.name;
+    selectedLabel.innerHTML = `<span class="flex items-start gap-3"><span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border/80 bg-surface/80 text-sky-400" aria-hidden="true">${categoryIconSvg(
+      catId
+    )}</span><span class="min-w-0 flex-1 text-base font-medium text-slate-200">${escapeHtml(line)}</span></span>`;
+    const isCustom = item.id === "custom";
+    customNameRow.classList.toggle("hidden", !isCustom);
+    customNameInput.value = isCustom ? "" : item.name;
+    customNameInput.required = isCustom;
+    fieldActiveHours.value = "";
+    fieldStandbyHours.value = "";
+    fieldActiveW.value = String(item.default_active_w);
+    fieldStandbyW.value = String(item.default_standby_w);
+    standbyWhenInactive.checked = true;
+    syncCatalogStandby();
+    fieldActiveHours.focus();
+  }
+
+  function openCatalog(roomId, roomName) {
+    targetRoomId = roomId;
+    if (catalogHint) catalogHint.textContent = roomName;
+    backdrop.classList.remove("hidden");
+    panel.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    showCatalogListStep();
+    catalogClose.focus();
+  }
+
+  function closeCatalog() {
+    targetRoomId = null;
+    pendingItem = null;
+    showCatalogListStep();
+    backdrop.classList.add("hidden");
+    panel.classList.add("hidden");
+    if (!roomPanel.classList.contains("hidden") || !editPanel.classList.contains("hidden")) return;
+    document.body.style.overflow = "";
+  }
+
+  function openAddRoom() {
+    roomEditId.value = "";
+    roomPanelTitle.textContent = "Add room";
+    roomSubmitBtn.textContent = "Add room";
+    roomBackdrop.classList.remove("hidden");
+    roomPanel.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    roomNameInput.value = "";
+    roomNameInput.focus();
+  }
+
+  function openEditRoom(room) {
+    roomEditId.value = room.id;
+    roomPanelTitle.textContent = "Rename room";
+    roomSubmitBtn.textContent = "Save";
+    roomBackdrop.classList.remove("hidden");
+    roomPanel.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    roomNameInput.value = room.name;
+    roomNameInput.focus();
+  }
+
+  function closeAddRoom() {
+    roomBackdrop.classList.add("hidden");
+    roomPanel.classList.add("hidden");
+    roomEditId.value = "";
+    roomPanelTitle.textContent = "Add room";
+    roomSubmitBtn.textContent = "Add room";
+    if (panel.classList.contains("hidden") && editPanel.classList.contains("hidden")) {
+      document.body.style.overflow = "";
+    }
+  }
+
+  function openEditAppliance(roomId, a) {
+    editRoomId.value = roomId;
+    editInstanceId.value = a.instance_id;
+    editName.value = a.name;
+    editActiveH.value = String(a.active_hours_daily ?? 0);
+    editActiveW.value = String(a.active_w ?? 0);
+    const st = standbyEnabled(a);
+    editStandbyToggle.checked = st;
+    editStandbyH.value = st ? String(a.standby_hours_daily ?? 0) : "";
+    editStandbyW.value = st ? String(a.standby_w ?? 0) : "";
+    syncEditStandby();
+    editBackdrop.classList.remove("hidden");
+    editPanel.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    editName.focus();
+  }
+
+  function closeEditAppliance() {
+    editBackdrop.classList.add("hidden");
+    editPanel.classList.add("hidden");
+    if (panel.classList.contains("hidden") && roomPanel.classList.contains("hidden")) {
+      document.body.style.overflow = "";
+    }
+  }
+
+  function anyModalOpen() {
+    return (
+      !panel.classList.contains("hidden") ||
+      !roomPanel.classList.contains("hidden") ||
+      !editPanel.classList.contains("hidden")
+    );
+  }
+
+  function parseNonNeg(name, el) {
+    const v = parseFloat(el.value);
+    if (Number.isNaN(v) || v < 0) {
+      el.focus();
+      throw new Error(`${name} must be a number ≥ 0`);
+    }
+    return v;
+  }
+
+  async function submitDetailForm(e) {
+    e.preventDefault();
+    if (!targetRoomId || !pendingItem) return;
+    try {
+      const activeH = parseNonNeg("Active hours", fieldActiveHours);
+      const activeW = parseNonNeg("Active power", fieldActiveW);
+      const standbyOn = standbyWhenInactive.checked;
+      let standbyH = 0;
+      let standbyW = 0;
+      if (standbyOn) {
+        standbyH = parseNonNeg("Standby hours", fieldStandbyHours);
+        standbyW = parseNonNeg("Standby power", fieldStandbyW);
+      }
+
+      const payload = {
+        catalog_id: pendingItem.id,
+        active_hours_daily: activeH,
+        active_w: activeW,
+        standby_when_inactive: standbyOn,
+      };
+      if (standbyOn) {
+        payload.standby_hours_daily = standbyH;
+        payload.standby_w = standbyW;
+      }
+      if (pendingItem.id === "custom") {
+        const n = customNameInput.value.trim();
+        if (!n) {
+          customNameInput.focus();
+          alert("Enter a name for your custom appliance.");
+          return;
+        }
+        payload.name = n;
+      }
+
+      await fetchJSON(`/api/rooms/${encodeURIComponent(targetRoomId)}/appliances`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      closeCatalog();
+      await loadState();
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Could not add appliance.");
+    }
+  }
+
+  async function submitEditAppliance(e) {
+    e.preventDefault();
+    const roomId = editRoomId.value;
+    const instId = editInstanceId.value;
+    if (!roomId || !instId) return;
+    try {
+      const name = editName.value.trim();
+      if (!name) {
+        editName.focus();
+        return;
+      }
+      const activeH = parseNonNeg("Active hours", editActiveH);
+      const activeW = parseNonNeg("Active power", editActiveW);
+      const standbyOn = editStandbyToggle.checked;
+      let standbyH = 0;
+      let standbyW = 0;
+      if (standbyOn) {
+        standbyH = parseNonNeg("Standby hours", editStandbyH);
+        standbyW = parseNonNeg("Standby power", editStandbyW);
+      }
+      const payload = {
+        name,
+        active_hours_daily: activeH,
+        active_w: activeW,
+        standby_when_inactive: standbyOn,
+      };
+      if (standbyOn) {
+        payload.standby_hours_daily = standbyH;
+        payload.standby_w = standbyW;
+      }
+      await fetchJSON(
+        `/api/rooms/${encodeURIComponent(roomId)}/appliances/${encodeURIComponent(instId)}`,
+        { method: "PUT", body: JSON.stringify(payload) }
+      );
+      closeEditAppliance();
+      await loadState();
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Could not save appliance.");
+    }
+  }
+
+  function escapeHtml(s) {
+    const d = document.createElement("div");
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function fmtNum(n) {
+    if (n == null || Number.isNaN(Number(n))) return "-";
+    const x = Number(n);
+    if (Math.abs(x - Math.round(x)) < 1e-9) return String(Math.round(x));
+    return String(Math.round(x * 100) / 100);
+  }
+
+  function fmtAudit(a, field) {
+    if (!standbyEnabled(a) && (field === "sw" || field === "sh")) return "-";
+    if (field === "sw") return fmtNum(a.standby_w);
+    if (field === "sh") return fmtNum(a.standby_hours_daily);
+    if (field === "aw") return fmtNum(a.active_w);
+    if (field === "ah") return fmtNum(a.active_hours_daily);
+    return "-";
+  }
+
+  function renderTree(state) {
+    treeEl.innerHTML = "";
+    for (const room of state.rooms) {
+      const wrap = document.createElement("details");
+      wrap.className = "group/room";
+      wrap.open = true;
+
+      const summary = document.createElement("summary");
+      summary.className =
+        "flex w-full cursor-pointer list-none items-center gap-2 text-base text-slate-200 [&::-webkit-details-marker]:hidden";
+
+      const chevron = document.createElement("span");
+      chevron.className = "text-sky-500 transition group-open/room:rotate-90 shrink-0";
+      chevron.textContent = "▸";
+
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "font-medium min-w-0 flex-1 truncate text-slate-100";
+      nameSpan.textContent = room.name;
+
+      const actions = document.createElement("div");
+      actions.className = "ml-auto flex shrink-0 items-center gap-0.5";
+
+      const btnEditRoom = document.createElement("button");
+      btnEditRoom.type = "button";
+      btnEditRoom.className =
+        "rounded-md p-1.5 text-slate-500 hover:bg-white/10 hover:text-sky-400";
+      btnEditRoom.title = "Rename room";
+      btnEditRoom.setAttribute("aria-label", "Rename room");
+      btnEditRoom.innerHTML = ICON_PEN;
+      btnEditRoom.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        openEditRoom(room);
+      });
+
+      const btnDelRoom = document.createElement("button");
+      btnDelRoom.type = "button";
+      btnDelRoom.className =
+        "rounded-md p-1.5 text-slate-500 hover:bg-white/10 hover:text-rose-400";
+      btnDelRoom.title = "Delete room";
+      btnDelRoom.setAttribute("aria-label", "Delete room");
+      btnDelRoom.innerHTML = ICON_TRASH;
+      btnDelRoom.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const n = room.appliances?.length || 0;
+        const msg =
+          n > 0
+            ? `Delete room “${room.name}” and all ${n} appliance(s) inside it? This cannot be undone.`
+            : `Delete room “${room.name}”? This cannot be undone.`;
+        if (!confirm(msg)) return;
+        deleteRoom(room.id);
+      });
+
+      const addBtn = document.createElement("button");
+      addBtn.type = "button";
+      addBtn.className =
+        "rounded-md border border-sky-500/35 bg-sky-500/10 px-2.5 py-1 text-sm font-semibold text-sky-300 hover:bg-sky-500/20";
+      addBtn.textContent = "+";
+      addBtn.title = "Add appliance from catalog";
+      addBtn.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        openCatalog(room.id, room.name);
+      });
+
+      actions.append(btnEditRoom, btnDelRoom, addBtn);
+      summary.append(chevron, nameSpan, actions);
+
+      const inner = document.createElement("div");
+      inner.className = "mt-2 space-y-2 border-l-2 border-emerald-500/15 pl-3 ml-2";
+
+      if (!room.appliances.length) {
+        const empty = document.createElement("p");
+        empty.className = "text-base text-sky-400/75 py-1";
+        empty.textContent = "No appliances yet — use + to pick from the catalog.";
+        inner.appendChild(empty);
+      } else {
+        for (const a of room.appliances) {
+          inner.appendChild(applianceCard(room.id, a));
+        }
+      }
+
+      wrap.appendChild(summary);
+      wrap.appendChild(inner);
+      treeEl.appendChild(wrap);
+    }
+  }
+
+  function applianceCard(roomId, a) {
+    const wrap = document.createElement("div");
+    wrap.className =
+      "flex gap-2 rounded-lg border border-border bg-surface/80 px-3.5 py-2.5 text-base text-slate-300";
+
+    const main = document.createElement("div");
+    main.className = "min-w-0 flex-1";
+    main.innerHTML = `
+      <div class="font-medium text-slate-100">${escapeHtml(a.name)}</div>
+      <div class="mt-1 grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
+        <span class="text-sky-400/85">Active: <span class="font-mono text-sky-200">${fmtAudit(a, "aw")}</span> W</span>
+        <span class="text-emerald-400/80">Standby: <span class="font-mono text-emerald-200/90">${fmtAudit(a, "sw")}</span> W</span>
+        <span class="text-slate-500">Active h/day: <span class="font-mono text-slate-200">${fmtAudit(a, "ah")}</span></span>
+        <span class="text-slate-500">Standby h/day: <span class="font-mono text-slate-200">${fmtAudit(a, "sh")}</span></span>
+      </div>`;
+
+    const actions = document.createElement("div");
+    actions.className = "flex shrink-0 flex-col gap-1";
+
+    const btnEdit = document.createElement("button");
+    btnEdit.type = "button";
+    btnEdit.className =
+      "rounded-md p-1.5 text-slate-500 hover:bg-white/10 hover:text-sky-400";
+    btnEdit.title = "Edit appliance";
+    btnEdit.setAttribute("aria-label", "Edit appliance");
+    btnEdit.innerHTML = ICON_PEN;
+    btnEdit.addEventListener("click", () => openEditAppliance(roomId, a));
+
+    const btnDel = document.createElement("button");
+    btnDel.type = "button";
+    btnDel.className =
+      "rounded-md p-1.5 text-slate-500 hover:bg-white/10 hover:text-rose-400";
+    btnDel.title = "Remove appliance";
+    btnDel.setAttribute("aria-label", "Remove appliance");
+    btnDel.innerHTML = ICON_TRASH;
+    btnDel.addEventListener("click", () => {
+      if (!confirm(`Remove “${a.name}” from this room?`)) return;
+      deleteAppliance(roomId, a.instance_id);
+    });
+
+    actions.append(btnEdit, btnDel);
+    wrap.append(main, actions);
+    return wrap;
+  }
+
+  async function deleteRoom(roomId) {
+    try {
+      await fetchJSON(`/api/rooms/${encodeURIComponent(roomId)}`, { method: "DELETE" });
+      await loadState();
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Could not delete room.");
+    }
+  }
+
+  async function deleteAppliance(roomId, instanceId) {
+    try {
+      await fetchJSON(
+        `/api/rooms/${encodeURIComponent(roomId)}/appliances/${encodeURIComponent(instanceId)}`,
+        { method: "DELETE" }
+      );
+      await loadState();
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Could not remove appliance.");
+    }
+  }
+
+  async function loadState() {
+    const state = await fetchJSON("/api/state");
+    renderTree(state);
+    if (targetRoomId && catalogHint) {
+      const r = state.rooms.find((x) => x.id === targetRoomId);
+      if (r) catalogHint.textContent = r.name;
+    }
+    window.dispatchEvent(new CustomEvent("phantom-state-changed", { detail: { state } }));
+    if (typeof window.phantomOnStateUpdated === "function") {
+      window.phantomOnStateUpdated(state);
+    }
+  }
+
+  async function submitRoomForm(e) {
+    e.preventDefault();
+    const name = roomNameInput.value.trim();
+    if (!name) {
+      roomNameInput.focus();
+      return;
+    }
+    try {
+      const editId = roomEditId.value.trim();
+      if (editId) {
+        await fetchJSON(`/api/rooms/${encodeURIComponent(editId)}`, {
+          method: "PUT",
+          body: JSON.stringify({ name }),
+        });
+      } else {
+        await fetchJSON("/api/rooms", {
+          method: "POST",
+          body: JSON.stringify({ name }),
+        });
+      }
+      closeAddRoom();
+      await loadState();
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Could not save room.");
+    }
+  }
+
+  async function init() {
+    catalog = await fetchJSON("/api/catalog");
+    buildCategoryDropdown();
+    await loadState();
+  }
+
+  if (homeAddRoom) {
+    homeAddRoom.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openAddRoom();
+    });
+  }
+
+  if (catalogCategory) {
+    catalogCategory.addEventListener("change", onCatalogCategoryChange);
+  }
+  if (catalogVariant) {
+    catalogVariant.addEventListener("change", syncCatalogContinueButton);
+  }
+  if (catalogContinueBtn) {
+    catalogContinueBtn.addEventListener("click", continueToUsageStep);
+  }
+  if (standbyWhenInactive) {
+    standbyWhenInactive.addEventListener("change", syncCatalogStandby);
+  }
+  if (editStandbyToggle) {
+    editStandbyToggle.addEventListener("change", syncEditStandby);
+  }
+
+  backdrop.addEventListener("click", closeCatalog);
+  catalogClose.addEventListener("click", closeCatalog);
+  roomBackdrop.addEventListener("click", closeAddRoom);
+  roomClose.addEventListener("click", closeAddRoom);
+  editBackdrop.addEventListener("click", closeEditAppliance);
+  editClose.addEventListener("click", closeEditAppliance);
+  roomForm.addEventListener("submit", submitRoomForm);
+  editForm.addEventListener("submit", submitEditAppliance);
+  catalogFormBack.addEventListener("click", () => {
+    if (!targetRoomId) return;
+    showCatalogListStep();
+  });
+  detailForm.addEventListener("submit", submitDetailForm);
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" || !anyModalOpen()) return;
+    if (!editPanel.classList.contains("hidden")) closeEditAppliance();
+    else if (!roomPanel.classList.contains("hidden")) closeAddRoom();
+    else closeCatalog();
+  });
+
+  init().catch(console.error);
+})();
