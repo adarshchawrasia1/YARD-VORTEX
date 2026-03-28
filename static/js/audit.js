@@ -44,9 +44,9 @@
   const editStandbyBlock = document.getElementById("edit-standby-block");
 
   const ICON_PEN =
-    '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>';
+    '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>';
   const ICON_TRASH =
-    '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>';
+    '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>';
 
   let catalog = { categories: [] };
   let targetRoomId = null;
@@ -409,14 +409,14 @@
 
       const summary = document.createElement("summary");
       summary.className =
-        "flex w-full cursor-pointer list-none items-center gap-2 text-slate-200 [&::-webkit-details-marker]:hidden";
+        "flex w-full cursor-pointer list-none items-center gap-2 text-base text-slate-200 [&::-webkit-details-marker]:hidden";
 
       const chevron = document.createElement("span");
-      chevron.className = "text-slate-500 transition group-open/room:rotate-90 shrink-0";
+      chevron.className = "text-sky-500 transition group-open/room:rotate-90 shrink-0";
       chevron.textContent = "▸";
 
       const nameSpan = document.createElement("span");
-      nameSpan.className = "font-medium min-w-0 flex-1 truncate";
+      nameSpan.className = "font-medium min-w-0 flex-1 truncate text-slate-100";
       nameSpan.textContent = room.name;
 
       const actions = document.createElement("div");
@@ -457,7 +457,7 @@
       const addBtn = document.createElement("button");
       addBtn.type = "button";
       addBtn.className =
-        "rounded-md border border-border px-2 py-0.5 text-xs font-medium text-accent hover:bg-sky-500/10";
+        "rounded-md border border-sky-500/35 bg-sky-500/10 px-2.5 py-1 text-sm font-semibold text-sky-300 hover:bg-sky-500/20";
       addBtn.textContent = "+";
       addBtn.title = "Add appliance from catalog";
       addBtn.addEventListener("click", (ev) => {
@@ -470,11 +470,11 @@
       summary.append(chevron, nameSpan, actions);
 
       const inner = document.createElement("div");
-      inner.className = "mt-2 space-y-2 border-l border-border pl-3 ml-2";
+      inner.className = "mt-2 space-y-2 border-l-2 border-emerald-500/15 pl-3 ml-2";
 
       if (!room.appliances.length) {
         const empty = document.createElement("p");
-        empty.className = "text-sm text-slate-500 py-1";
+        empty.className = "text-base text-sky-400/75 py-1";
         empty.textContent = "No appliances yet — use + to pick from the catalog.";
         inner.appendChild(empty);
       } else {
@@ -492,17 +492,17 @@
   function applianceCard(roomId, a) {
     const wrap = document.createElement("div");
     wrap.className =
-      "flex gap-2 rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm text-slate-300";
+      "flex gap-2 rounded-lg border border-border bg-surface/80 px-3.5 py-2.5 text-base text-slate-300";
 
     const main = document.createElement("div");
     main.className = "min-w-0 flex-1";
     main.innerHTML = `
       <div class="font-medium text-slate-100">${escapeHtml(a.name)}</div>
-      <div class="mt-1 grid grid-cols-2 gap-x-2 gap-y-1 text-xs text-slate-500">
-        <span>Active: <span class="text-slate-300">${fmtAudit(a, "aw")}</span> W</span>
-        <span>Standby: <span class="text-slate-300">${fmtAudit(a, "sw")}</span> W</span>
-        <span>Active h/day: <span class="text-slate-300">${fmtAudit(a, "ah")}</span></span>
-        <span>Standby h/day: <span class="text-slate-300">${fmtAudit(a, "sh")}</span></span>
+      <div class="mt-1 grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
+        <span class="text-sky-400/85">Active: <span class="font-mono text-sky-200">${fmtAudit(a, "aw")}</span> W</span>
+        <span class="text-emerald-400/80">Standby: <span class="font-mono text-emerald-200/90">${fmtAudit(a, "sw")}</span> W</span>
+        <span class="text-slate-500">Active h/day: <span class="font-mono text-slate-200">${fmtAudit(a, "ah")}</span></span>
+        <span class="text-slate-500">Standby h/day: <span class="font-mono text-slate-200">${fmtAudit(a, "sh")}</span></span>
       </div>`;
 
     const actions = document.createElement("div");

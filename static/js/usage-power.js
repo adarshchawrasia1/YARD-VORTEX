@@ -264,6 +264,7 @@
       breakdownCards.innerHTML = "";
       if (usageWasteSummary) usageWasteSummary.textContent = "";
       if (usageRightEmpty) usageRightEmpty.classList.remove("hidden");
+      if (typeof window.phantomRenderInsights === "function") window.phantomRenderInsights();
       return;
     }
 
@@ -377,6 +378,8 @@
     if (subtitleEl) {
       subtitleEl.textContent = `${roomLabel} · ${fmtMoney(rate)}/kWh · ${fmtNum(co2KgPerKwh, 2)} kg CO₂/kWh`;
     }
+
+    if (typeof window.phantomRenderInsights === "function") window.phantomRenderInsights();
   }
 
   function escapeHtml(s) {
@@ -529,6 +532,17 @@
           .then((state) => window.phantomOnStateUpdated(state))
       );
   }
+
+  window.phantomGetUsageContext = function phantomGetUsageContext() {
+    return {
+      lastState,
+      catalog: catalogCache,
+      scope: selectEl?.value || "home",
+      periodMeta: getPeriodMeta(),
+      rate: currentRateAndCo2().rate,
+      co2KgPerKwh: currentRateAndCo2().co2KgPerKwh,
+    };
+  };
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);

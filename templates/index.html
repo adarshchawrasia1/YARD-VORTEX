@@ -15,61 +15,95 @@
               border: "#2d3a4d",
               accent: "#38bdf8",
             },
+            fontSize: {
+              xs: ["0.8125rem", { lineHeight: "1.25rem" }],
+              sm: ["0.9375rem", { lineHeight: "1.375rem" }],
+              base: ["1.0625rem", { lineHeight: "1.5rem" }],
+            },
           },
         },
       };
     </script>
+    <style>
+      /* Monotonic tile: one slate tint for all glyphs, denser 180px repeat + fine grid */
+      body {
+        background-color: #0f1419;
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22180%22%20height%3D%22180%22%20viewBox%3D%220%200%20180%20180%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22g%22%20width%3D%2212%22%20height%3D%2212%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Cpath%20d%3D%22M12%200H0V12%22%20fill%3D%22none%22%20stroke%3D%22%232d3a4d%22%20stroke-width%3D%220.45%22%20opacity%3D%220.28%22/%3E%3C/pattern%3E%3C/defs%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2216%22%20y%3D%2238%22%20font-size%3D%2215%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F3AE%3B%3C/text%3E%3Ctext%20x%3D%2252%22%20y%3D%2222%22%20font-size%3D%2213%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x26A1%3B%3C/text%3E%3Ctext%20x%3D%2298%22%20y%3D%2244%22%20font-size%3D%2214%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F4BB%3B%3C/text%3E%3Ctext%20x%3D%22142%22%20y%3D%2228%22%20font-size%3D%2212%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F50B%3B%3C/text%3E%3Ctext%20x%3D%22168%22%20y%3D%2252%22%20font-size%3D%2216%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x2328%3B%26%23xFE0F%3B%3C/text%3E%3Ctext%20x%3D%2228%22%20y%3D%2278%22%20font-size%3D%2211%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F4CA%3B%3C/text%3E%3Ctext%20x%3D%2276%22%20y%3D%2292%22%20font-size%3D%2215%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F310%3B%3C/text%3E%3Ctext%20x%3D%22118%22%20y%3D%2272%22%20font-size%3D%2213%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F50C%3B%3C/text%3E%3Ctext%20x%3D%22158%22%20y%3D%2288%22%20font-size%3D%2214%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F3AF%3B%3C/text%3E%3Ctext%20x%3D%2212%22%20y%3D%22118%22%20font-size%3D%2212%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x2699%3B%26%23xFE0F%3B%3C/text%3E%3Ctext%20x%3D%2248%22%20y%3D%22132%22%20font-size%3D%2216%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F3AE%3B%3C/text%3E%3Ctext%20x%3D%2292%22%20y%3D%22108%22%20font-size%3D%2211%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x26A1%3B%3C/text%3E%3Ctext%20x%3D%22132%22%20y%3D%22128%22%20font-size%3D%2214%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F4BB%3B%3C/text%3E%3Ctext%20x%3D%22172%22%20y%3D%22118%22%20font-size%3D%2213%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F50B%3B%3C/text%3E%3Ctext%20x%3D%2224%22%20y%3D%22158%22%20font-size%3D%2212%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F4CA%3B%3C/text%3E%3Ctext%20x%3D%2268%22%20y%3D%22168%22%20font-size%3D%2215%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x2328%3B%26%23xFE0F%3B%3C/text%3E%3Ctext%20x%3D%22108%22%20y%3D%22152%22%20font-size%3D%2213%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F310%3B%3C/text%3E%3Ctext%20x%3D%22148%22%20y%3D%22168%22%20font-size%3D%2211%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F50C%3B%3C/text%3E%3Ctext%20x%3D%228%22%20y%3D%2292%22%20font-size%3D%2210%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F3AF%3B%3C/text%3E%3Ctext%20x%3D%22170%22%20y%3D%2278%22%20font-size%3D%2211%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x2699%3B%26%23xFE0F%3B%3C/text%3E%3Ctext%20x%3D%2262%22%20y%3D%2248%22%20font-size%3D%2210%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F4CA%3B%3C/text%3E%3Ctext%20x%3D%22122%22%20y%3D%2218%22%20font-size%3D%2211%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F50C%3B%3C/text%3E%3Ctext%20x%3D%2282%22%20y%3D%22178%22%20font-size%3D%2214%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x26A1%3B%3C/text%3E%3Ctext%20x%3D%22162%22%20y%3D%2242%22%20font-size%3D%2210%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F3AE%3B%3C/text%3E%3Ctext%20x%3D%22178%22%20y%3D%22142%22%20font-size%3D%2212%22%20fill%3D%22%2364748b%22%20opacity%3D%220.072%22%20font-family%3D%22Segoe%20UI%20Emoji%2CApple%20Color%20Emoji%2CNoto%20Color%20Emoji%2Csans-serif%22%3E%26%23x1F4BB%3B%3C/text%3E%3C/svg%3E");
+        background-repeat: repeat;
+        background-size: 180px 180px;
+      }
+    </style>
   </head>
-  <body class="min-h-screen bg-surface text-slate-100 antialiased">
+  <body class="min-h-screen bg-surface text-base leading-relaxed text-slate-100 antialiased">
     <header
-      class="flex items-center justify-between border-b border-border px-4 py-3 bg-panel/80 backdrop-blur"
+      class="flex items-center justify-between border-b border-border px-5 py-3.5 bg-panel/80 backdrop-blur"
     >
-      <span class="text-lg font-semibold tracking-tight text-sky-300">Phantom Load</span>
+      <span class="text-xl font-semibold tracking-tight text-sky-300">Phantom Load</span>
       <button
         type="button"
-        class="rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-slate-200"
+        class="rounded-lg p-2.5 text-slate-400 hover:bg-white/5 hover:text-slate-200"
         aria-label="Menu"
       >
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
     </header>
 
-    <main class="mx-auto max-w-6xl px-4 py-8">
-      <h1 class="mb-4 text-sm font-medium uppercase tracking-wider text-slate-500">Audit Usage</h1>
+    <main class="mx-auto max-w-6xl px-5 py-10 sm:px-8">
+      <header class="mb-6">
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h1 class="text-base font-semibold uppercase tracking-[0.18em] text-slate-500 sm:text-lg">
+            <span class="text-sky-400/90">Audit</span>
+            <span class="text-slate-600"> </span>
+            <span class="text-emerald-400/85">Usage</span>
+          </h1>
+          <span
+            class="rounded-full border border-sky-500/25 bg-sky-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-sky-300/90"
+            >Rooms &amp; devices</span
+          >
+        </div>
+        <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-500 sm:text-base">
+          <span class="font-medium text-sky-400/90">Map rooms</span>, drop in appliances, then open
+          <span class="font-medium text-sky-400/90">Usage</span><span class="text-slate-600"> &amp; </span><span class="font-medium text-emerald-400/85">Power</span> for costs, CO₂, and charts.
+        </p>
+      </header>
 
       <section
-        class="rounded-xl border-2 border-dashed border-border bg-panel/50 p-4 shadow-inner"
+        class="rounded-xl border border-sky-800/35 bg-gradient-to-br from-sky-950/35 via-panel/70 to-emerald-950/20 p-5 shadow-lg shadow-sky-950/15 ring-1 ring-emerald-500/10 sm:p-6"
         aria-label="Home energy tree"
       >
         <details class="group" open>
           <summary
-            class="flex w-full cursor-pointer list-none items-center gap-2 font-semibold text-slate-200 [&::-webkit-details-marker]:hidden"
+            class="flex w-full cursor-pointer list-none items-center gap-2 text-base font-semibold text-slate-100 [&::-webkit-details-marker]:hidden"
           >
-            <span class="inline-block text-slate-500 transition group-open:rotate-90">▸</span>
-            <span>Home</span>
+            <span class="inline-block text-lg text-sky-500 transition group-open:rotate-90">▸</span>
+            <span class="bg-gradient-to-r from-sky-200 to-emerald-200 bg-clip-text text-transparent">Home</span>
             <button
               type="button"
               id="home-add-room"
-              class="ml-auto rounded-md border border-border px-2 py-0.5 text-xs font-medium text-accent hover:bg-sky-500/10"
+              class="ml-auto rounded-md border border-sky-500/35 bg-sky-500/10 px-2.5 py-1 text-sm font-semibold text-sky-300 hover:bg-sky-500/20"
               title="Add room"
             >
               +
             </button>
           </summary>
-          <div id="room-tree" class="mt-3 space-y-2 border-l border-border pl-4 ml-1"></div>
+          <div id="room-tree" class="mt-4 space-y-2.5 border-l-2 border-sky-500/20 pl-4 ml-1"></div>
         </details>
       </section>
 
       <section class="mt-10" aria-labelledby="usage-power-heading">
         <h2
           id="usage-power-heading"
-          class="mb-4 text-sm font-medium uppercase tracking-wider text-slate-500"
+          class="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500"
         >
-          Usage &amp; Power
+          <span class="text-sky-400/90">Usage</span>
+          <span class="text-slate-600">&amp;</span>
+          <span class="text-emerald-400/85">Power</span>
         </h2>
-        <div class="rounded-xl border border-border bg-panel/50 p-5 shadow-inner lg:p-6">
+        <div
+          class="rounded-xl border border-sky-800/35 bg-gradient-to-br from-sky-950/20 via-panel/60 to-emerald-950/15 p-5 shadow-inner shadow-sky-950/10 ring-1 ring-emerald-500/10 lg:p-6"
+        >
           <div class="grid gap-8 lg:grid-cols-2 lg:gap-10 lg:items-start">
             <!-- Column 1: room, grid, tariff, chart -->
             <div class="flex flex-col gap-5">
@@ -212,6 +246,115 @@
           </div>
         </div>
       </section>
+
+      <!-- Swap & Save: quantified swaps for highest-waste appliances + dream purchase timelines -->
+      <section
+        id="swap-save-section"
+        class="mt-10 hidden"
+        aria-labelledby="swap-save-heading"
+      >
+        <h2
+          id="swap-save-heading"
+          class="mb-4 text-base font-semibold uppercase tracking-[0.18em] text-slate-500 sm:text-lg"
+        >
+          <span class="text-amber-400/90">Swap</span>
+          <span class="text-slate-600">&amp;</span>
+          <span class="text-emerald-400/85">Save</span>
+        </h2>
+        <div
+          class="rounded-xl border border-amber-800/30 bg-gradient-to-br from-amber-950/25 via-panel/65 to-emerald-950/20 p-5 shadow-lg shadow-amber-950/10 ring-1 ring-emerald-500/10 sm:p-6"
+        >
+          <p class="mb-4 text-sm leading-relaxed text-slate-500 sm:text-base">
+            For <span class="font-medium text-amber-200/90">highest-waste</span> devices we compare your entry to
+            <span class="font-medium text-sky-400/90">other models in the same catalog category</span> and show where a
+            switch saves money (₹ and CO₂ per year). Then see what banking those savings could buy over time.
+          </p>
+          <p
+            id="swap-save-empty"
+            class="rounded-lg border border-dashed border-border bg-surface/40 px-4 py-8 text-center text-sm text-slate-500"
+          >
+            Add appliances in Audit Usage and pick a room scope above — we’ll rank waste and show swap ideas here.
+          </p>
+          <div id="swap-save-cards" class="grid grid-cols-1 gap-3 lg:grid-cols-3"></div>
+          <div id="swap-save-dream" class="mt-4 rounded-lg border border-slate-600/40 bg-slate-950/40 px-3 py-3"></div>
+        </div>
+      </section>
+
+      <!-- What-if simulator: multi-appliance sliders (layout inspired by drag-to-reduce reference; themed sky/emerald) -->
+      <section id="whatif-section" class="mt-10 hidden" aria-labelledby="whatif-heading">
+        <h2
+          id="whatif-heading"
+          class="mb-3 text-base font-semibold uppercase tracking-[0.18em] text-slate-500 sm:text-lg"
+        >
+          <span class="text-sky-400/90">What</span>
+          <span class="text-slate-600">-</span>
+          <span class="text-emerald-400/85">If</span>
+        </h2>
+        <div
+          class="rounded-xl border border-sky-800/35 bg-gradient-to-br from-sky-950/25 via-panel/65 to-emerald-950/20 p-5 shadow-inner shadow-sky-950/15 ring-1 ring-emerald-500/10 sm:p-6"
+        >
+          <p
+            class="mb-4 text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-400/85 sm:text-[11px]"
+          >
+            What-if simulator — drag to reduce usage
+          </p>
+          <p class="mb-4 text-sm leading-relaxed text-slate-500 sm:text-base">
+            Drag sliders for <span class="font-medium text-sky-300">any combination</span> of appliances. Savings add up;
+            below, see <span class="font-medium text-emerald-300">annual ₹ &amp; CO₂</span> and what you could afford with
+            that total (e.g. iPhone).
+          </p>
+          <p
+            id="whatif-empty"
+            class="hidden rounded-lg border border-dashed border-border bg-surface/40 px-4 py-8 text-center text-sm text-slate-500"
+          >
+            No appliances in this scope — choose Home or a room under Usage &amp; Power.
+          </p>
+          <div id="whatif-form" class="hidden">
+            <div class="overflow-x-auto rounded-lg border border-border/60 bg-surface/40">
+              <table class="w-full min-w-[min(100%,42rem)] border-collapse text-left text-sm">
+                <thead>
+                  <tr class="border-b border-border/80 bg-panel/50">
+                    <th
+                      class="px-3 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 sm:px-4"
+                      scope="col"
+                    >
+                      Appliance
+                    </th>
+                    <th
+                      class="px-2 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 sm:min-w-[14rem]"
+                      scope="col"
+                    >
+                      Reduce by (h / day)
+                    </th>
+                    <th
+                      class="px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider text-slate-500 sm:px-4"
+                      scope="col"
+                    >
+                      Annual saving
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="whatif-table-body" class="divide-y divide-border/50"></tbody>
+                <tfoot>
+                  <tr id="whatif-total-row" class="border-t border-sky-500/35 bg-gradient-to-r from-sky-950/40 to-emerald-950/25">
+                    <td class="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 sm:px-4" colspan="2">
+                      Combined (this scenario)
+                    </td>
+                    <td class="px-3 py-3 text-right sm:px-4">
+                      <div id="whatif-total-inr" class="text-base font-semibold tabular-nums text-sky-300 sm:text-lg"></div>
+                      <div id="whatif-total-co2" class="mt-0.5 text-[11px] tabular-nums text-emerald-300/90"></div>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <div
+              id="whatif-dream"
+              class="mt-4 rounded-lg border border-slate-600/40 bg-slate-950/40 px-3 py-3"
+            ></div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -226,10 +369,10 @@
       role="dialog"
       aria-modal="true"
       aria-labelledby="catalog-title"
-      class="fixed left-1/2 top-1/2 z-50 hidden w-[min(100%,26rem)] max-h-[min(90vh,32rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-border bg-panel p-4 shadow-2xl"
+      class="fixed left-1/2 top-1/2 z-50 hidden w-[min(100%,28rem)] max-h-[min(90vh,34rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-border bg-panel p-5 shadow-2xl"
     >
       <div class="mb-3 flex items-center justify-between gap-2">
-        <h2 id="catalog-title" class="text-base font-semibold text-slate-100">Appliance catalog</h2>
+        <h2 id="catalog-title" class="text-lg font-semibold text-slate-100">Appliance catalog</h2>
         <button
           type="button"
           id="catalog-close"
@@ -239,24 +382,24 @@
           ✕
         </button>
       </div>
-      <p id="catalog-hint" class="mb-3 text-sm text-slate-500">Adding to <span class="text-slate-300"></span></p>
+      <p id="catalog-hint" class="mb-3 text-base text-slate-500">Adding to <span class="text-slate-300"></span></p>
 
       <div id="catalog-step-list" class="space-y-3">
         <div class="space-y-1">
-          <label for="catalog-category" class="text-xs text-slate-500">Category</label>
+          <label for="catalog-category" class="text-sm text-slate-500">Category</label>
           <select
             id="catalog-category"
-            class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
           >
             <option value="">Select category…</option>
           </select>
         </div>
         <div class="space-y-1">
-          <label for="catalog-variant" class="text-xs text-slate-500">Model / wattage</label>
+          <label for="catalog-variant" class="text-sm text-slate-500">Model / wattage</label>
           <select
             id="catalog-variant"
             disabled
-            class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
+            class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
           >
             <option value="">Select category first…</option>
           </select>
@@ -265,27 +408,27 @@
           type="button"
           id="catalog-continue-btn"
           disabled
-          class="w-full rounded-lg bg-sky-600 px-3 py-2 text-sm font-medium text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
+          class="w-full rounded-lg bg-sky-600 px-4 py-2.5 text-base font-medium text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Continue to usage &amp; power
         </button>
       </div>
 
       <form id="catalog-detail-form" class="hidden space-y-3" novalidate>
-        <p id="catalog-selected-label" class="text-sm font-medium text-slate-200"></p>
+        <p id="catalog-selected-label" class="text-base font-medium text-slate-200"></p>
         <div id="custom-name-row" class="hidden space-y-1">
-          <label for="custom-name" class="text-xs text-slate-500">Appliance name</label>
+          <label for="custom-name" class="text-sm text-slate-500">Appliance name</label>
           <input
             id="custom-name"
             type="text"
             maxlength="120"
             placeholder="e.g. Desk lamp"
-            class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 placeholder:text-slate-600 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
           />
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div class="space-y-1">
-            <label for="field-active-hours" class="text-xs text-slate-500">Active hours / day</label>
+            <label for="field-active-hours" class="text-sm text-slate-500">Active hours / day</label>
             <input
               id="field-active-hours"
               type="number"
@@ -294,11 +437,11 @@
               max="24"
               step="any"
               required
-              class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
           <div class="space-y-1">
-            <label for="field-active-w" class="text-xs text-slate-500">Active power (W)</label>
+            <label for="field-active-w" class="text-sm text-slate-500">Active power (W)</label>
             <input
               id="field-active-w"
               type="number"
@@ -306,7 +449,7 @@
               min="0"
               step="any"
               required
-              class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
         </div>
@@ -317,12 +460,12 @@
             checked
             class="rounded border-border bg-surface text-sky-500 focus:ring-accent"
           />
-          <span class="text-xs text-slate-400">Goes on standby when inactive</span>
+          <span class="text-sm text-slate-400">Goes on standby when inactive</span>
         </label>
         <div id="catalog-standby-block" class="space-y-3">
           <div class="grid grid-cols-2 gap-3">
             <div class="space-y-1">
-              <label for="field-standby-hours" class="text-xs text-slate-500">Standby hours / day</label>
+              <label for="field-standby-hours" class="text-sm text-slate-500">Standby hours / day</label>
               <input
                 id="field-standby-hours"
                 type="number"
@@ -330,37 +473,37 @@
                 min="0"
                 max="24"
                 step="any"
-                class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               />
             </div>
             <div class="space-y-1">
-              <label for="field-standby-w" class="text-xs text-slate-500">Standby power (W)</label>
+              <label for="field-standby-w" class="text-sm text-slate-500">Standby power (W)</label>
               <input
                 id="field-standby-w"
                 type="number"
                 inputmode="decimal"
                 min="0"
                 step="any"
-                class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               />
             </div>
           </div>
         </div>
-        <p class="text-xs text-slate-600">
+        <p class="text-sm text-slate-600">
           When standby applies, enter hours and phantom draw. Otherwise standby shows “–” in the audit.
         </p>
         <div class="flex gap-2 pt-1">
           <button
             type="button"
             id="catalog-form-back"
-            class="flex-1 rounded-lg border border-border px-3 py-2 text-sm text-slate-300 hover:bg-white/5"
+            class="flex-1 rounded-lg border border-border px-4 py-2.5 text-base text-slate-300 hover:bg-white/5"
           >
             Back
           </button>
           <button
             type="submit"
             id="catalog-form-submit"
-            class="flex-1 rounded-lg bg-sky-600 px-3 py-2 text-sm font-medium text-white hover:bg-sky-500"
+            class="flex-1 rounded-lg bg-sky-600 px-4 py-2.5 text-base font-medium text-white hover:bg-sky-500"
           >
             Add to room
           </button>
@@ -379,10 +522,10 @@
       role="dialog"
       aria-modal="true"
       aria-labelledby="room-panel-title"
-      class="fixed left-1/2 top-1/2 z-50 hidden w-[min(100%,22rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-panel p-4 shadow-2xl"
+      class="fixed left-1/2 top-1/2 z-50 hidden w-[min(100%,24rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-panel p-5 shadow-2xl"
     >
       <div class="mb-3 flex items-center justify-between gap-2">
-        <h2 id="room-panel-title" class="text-base font-semibold text-slate-100">Add room</h2>
+        <h2 id="room-panel-title" class="text-lg font-semibold text-slate-100">Add room</h2>
         <button
           type="button"
           id="room-close"
@@ -395,20 +538,20 @@
       <form id="room-form" class="space-y-3" novalidate>
         <input type="hidden" id="room-edit-id" value="" />
         <div class="space-y-1">
-          <label for="room-name-input" class="text-xs text-slate-500">Room name</label>
+          <label for="room-name-input" class="text-sm text-slate-500">Room name</label>
           <input
             id="room-name-input"
             type="text"
             maxlength="120"
             required
             placeholder="e.g. Study, Garage"
-            class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 placeholder:text-slate-600 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
           />
         </div>
         <button
           type="submit"
           id="room-submit-btn"
-          class="w-full rounded-lg bg-sky-600 px-3 py-2 text-sm font-medium text-white hover:bg-sky-500"
+          class="w-full rounded-lg bg-sky-600 px-4 py-2.5 text-base font-medium text-white hover:bg-sky-500"
         >
           Add room
         </button>
@@ -426,10 +569,10 @@
       role="dialog"
       aria-modal="true"
       aria-labelledby="edit-appliance-title"
-      class="fixed left-1/2 top-1/2 z-50 hidden w-[min(100%,26rem)] max-h-[min(90vh,32rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-border bg-panel p-4 shadow-2xl"
+      class="fixed left-1/2 top-1/2 z-50 hidden w-[min(100%,28rem)] max-h-[min(90vh,34rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-border bg-panel p-5 shadow-2xl"
     >
       <div class="mb-3 flex items-center justify-between gap-2">
-        <h2 id="edit-appliance-title" class="text-base font-semibold text-slate-100">Edit appliance</h2>
+        <h2 id="edit-appliance-title" class="text-lg font-semibold text-slate-100">Edit appliance</h2>
         <button
           type="button"
           id="edit-appliance-close"
@@ -443,18 +586,18 @@
         <input type="hidden" id="edit-appliance-room-id" />
         <input type="hidden" id="edit-appliance-instance-id" />
         <div class="space-y-1">
-          <label for="edit-appliance-name" class="text-xs text-slate-500">Name</label>
+          <label for="edit-appliance-name" class="text-sm text-slate-500">Name</label>
           <input
             id="edit-appliance-name"
             type="text"
             maxlength="120"
             required
-            class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
           />
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div class="space-y-1">
-            <label for="edit-active-hours" class="text-xs text-slate-500">Active hours / day</label>
+            <label for="edit-active-hours" class="text-sm text-slate-500">Active hours / day</label>
             <input
               id="edit-active-hours"
               type="number"
@@ -462,11 +605,11 @@
               min="0"
               step="any"
               required
-              class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
           <div class="space-y-1">
-            <label for="edit-active-w" class="text-xs text-slate-500">Active power (W)</label>
+            <label for="edit-active-w" class="text-sm text-slate-500">Active power (W)</label>
             <input
               id="edit-active-w"
               type="number"
@@ -474,7 +617,7 @@
               min="0"
               step="any"
               required
-              class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
         </div>
@@ -484,35 +627,35 @@
             id="edit-standby-toggle"
             class="rounded border-border bg-surface text-sky-500 focus:ring-accent"
           />
-          <span class="text-xs text-slate-400">Goes on standby when inactive</span>
+          <span class="text-sm text-slate-400">Goes on standby when inactive</span>
         </label>
         <div id="edit-standby-block" class="grid grid-cols-2 gap-3">
           <div class="space-y-1">
-            <label for="edit-standby-hours" class="text-xs text-slate-500">Standby hours / day</label>
+            <label for="edit-standby-hours" class="text-sm text-slate-500">Standby hours / day</label>
             <input
               id="edit-standby-hours"
               type="number"
               inputmode="decimal"
               min="0"
               step="any"
-              class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
           <div class="space-y-1">
-            <label for="edit-standby-w" class="text-xs text-slate-500">Standby power (W)</label>
+            <label for="edit-standby-w" class="text-sm text-slate-500">Standby power (W)</label>
             <input
               id="edit-standby-w"
               type="number"
               inputmode="decimal"
               min="0"
               step="any"
-              class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              class="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-base text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
         </div>
         <button
           type="submit"
-          class="w-full rounded-lg bg-sky-600 px-3 py-2 text-sm font-medium text-white hover:bg-sky-500"
+          class="w-full rounded-lg bg-sky-600 px-4 py-2.5 text-base font-medium text-white hover:bg-sky-500"
         >
           Save changes
         </button>
@@ -521,5 +664,6 @@
 
     <script src="{{ url_for('static', filename='js/audit.js') }}"></script>
     <script src="{{ url_for('static', filename='js/usage-power.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/swap-whatif.js') }}"></script>
   </body>
 </html>
