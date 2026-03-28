@@ -1,6 +1,37 @@
 (function () {
   const DAYS_YEAR = 365;
 
+  function notifySectionLayout() {
+    try {
+      window.dispatchEvent(new CustomEvent("phantom-section-layout"));
+    } catch (_) {}
+  }
+
+  function dreamIconMarkup(itemId) {
+    const wrap = (inner) =>
+      `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">${inner}</svg>`;
+    const paths = {
+      latte: '<path stroke-linecap="round" stroke-linejoin="round" d="M18 8h1a4 4 0 110 8h-1"/><path stroke-linecap="round" stroke-linejoin="round" d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><path stroke-linecap="round" d="M6 1v3M10 1v3M14 1v3"/>',
+      iphone:
+        '<path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/>',
+      laptop:
+        '<path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25h6M3.375 19.125h17.25a.75.75 0 00.75-.75v-10.5a2.25 2.25 0 00-2.25-2.25H5.125a2.25 2.25 0 00-2.25 2.25v10.5c0 .414.336.75.75.75zM7.5 6.75h9a2.25 2.25 0 012.25 2.25v2.25H5.25V9a2.25 2.25 0 012.25-2.25z"/>',
+      car: '<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 0v3.375c0 .621-.504 1.125-1.125 1.125H18.75m-18-6h3.75c0 3.728 3.022 6.75 6.75 6.75s6.75-3.022 6.75-6.75h3.75m-18 0v-3.75c0-.621.504-1.125 1.125-1.125h5.25a1.125 1.125 0 011.125 1.125v3.75m9-3.75c0-.621-.504-1.125-1.125-1.125h-5.25a1.125 1.125 0 00-1.125 1.125v3.75"/>',
+      house:
+        '<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>',
+    };
+    return wrap(paths[itemId] || paths.house);
+  }
+
+  const DREAM_ICON_PANEL =
+    /** @type {Record<string, string>} */ ({
+      latte: "border-amber-500/35 bg-amber-950/30 text-amber-200",
+      iphone: "border-sky-500/35 bg-sky-950/35 text-sky-200",
+      laptop: "border-violet-500/35 bg-violet-950/30 text-violet-200",
+      car: "border-emerald-500/35 bg-emerald-950/25 text-emerald-200",
+      house: "border-rose-500/35 bg-rose-950/25 text-rose-200",
+    });
+
   const WASTE_WEIGHT_IMPACT = 2 / 3;
   const WASTE_WEIGHT_STANDBY = 1 / 3;
 
@@ -206,7 +237,12 @@
     const parts = DREAM_ITEMS.map((item) => {
       const t = timeToAffordLabel(item.priceInr, annualSavingsInr);
       if (!t) return "";
-      return `<span class="inline-block rounded-xl border border-sky-500/25 bg-slate-900/55 px-3.5 py-2.5 text-sm text-slate-100 shadow-sm ring-1 ring-white/5 sm:px-4 sm:py-3 sm:text-base"><span class="font-semibold text-sky-300">${escapeHtml(item.name)}</span> <span class="text-slate-500">in</span> <span class="font-mono font-medium text-emerald-300/95">${escapeHtml(t)}</span></span>`;
+      const panel = DREAM_ICON_PANEL[item.id] || "border-slate-500/30 bg-slate-900/50 text-slate-200";
+      return `<span class="inline-flex max-w-full items-center gap-3 rounded-xl border px-3 py-2.5 shadow-sm ring-1 ring-white/5 sm:px-4 sm:py-3 ${panel}"><span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-black/20">${dreamIconMarkup(
+        item.id
+      )}</span><span class="min-w-0 text-sm sm:text-base"><span class="font-semibold text-white">${escapeHtml(item.name)}</span> <span class="text-slate-400">in</span> <span class="font-mono font-medium text-emerald-200/95">${escapeHtml(
+        t
+      )}</span></span></span>`;
     }).filter(Boolean);
     return `
       <p class="text-xs font-semibold uppercase tracking-[0.14em] text-sky-400/85 sm:text-sm">Savings banked</p>
@@ -217,15 +253,16 @@
   }
 
   function renderSwapSave(ctx) {
-    if (!swapSaveCards || !swapSaveEmpty || !swapSaveDream) return;
-    const { lastState, catalog, scope, rate, co2KgPerKwh } = ctx;
-    if (!lastState || !catalog) {
-      swapSaveSection?.classList.add("hidden");
-      return;
-    }
-    swapSaveSection?.classList.remove("hidden");
+    try {
+      if (!swapSaveCards || !swapSaveEmpty || !swapSaveDream) return;
+      const { lastState, catalog, scope, rate, co2KgPerKwh } = ctx;
+      if (!lastState || !catalog) {
+        swapSaveSection?.classList.add("hidden");
+        return;
+      }
+      swapSaveSection?.classList.remove("hidden");
 
-    const detailed = collectDetailed(lastState, scope, catalog);
+      const detailed = collectDetailed(lastState, scope, catalog);
     const scored = enrichRowsWithWasteScores(detailed);
     const recs = [];
     for (const row of scored) {
@@ -242,24 +279,24 @@
       }
     }
 
-    if (recs.length === 0) {
-      swapSaveEmpty.classList.remove("hidden");
-      if (detailed.length > 0) {
-        swapSaveEmpty.textContent =
-          "No cheaper catalog alternative beats your current modeled load in its category — expand the catalog or adjust Audit entries.";
-      } else {
-        swapSaveEmpty.textContent =
-          "Add appliances in Audit Usage and pick a room scope above — we’ll rank waste and show swap ideas here.";
+      if (recs.length === 0) {
+        swapSaveEmpty.classList.remove("hidden");
+        if (detailed.length > 0) {
+          swapSaveEmpty.textContent =
+            "No cheaper catalog alternative beats your current modeled load in its category — expand the catalog or adjust Audit entries.";
+        } else {
+          swapSaveEmpty.textContent =
+            "Add appliances in Audit Usage and pick a room scope above — we’ll rank waste and show swap ideas here.";
+        }
+        swapSaveCards.innerHTML = "";
+        swapSaveDream.innerHTML = "";
+        return;
       }
-      swapSaveCards.innerHTML = "";
-      swapSaveDream.innerHTML = "";
-      return;
-    }
-    swapSaveEmpty.classList.add("hidden");
+      swapSaveEmpty.classList.add("hidden");
 
-    let sumAnnualInr = 0;
-    let sumAnnualCo2 = 0;
-    swapSaveCards.innerHTML = recs
+      let sumAnnualInr = 0;
+      let sumAnnualCo2 = 0;
+      swapSaveCards.innerHTML = recs
       .map((rec, i) => {
         sumAnnualInr += rec.annualInr;
         sumAnnualCo2 += rec.annualCo2;
@@ -279,9 +316,12 @@
         </dl>
       </div>`;
       })
-      .join("");
+        .join("");
 
-    swapSaveDream.innerHTML = dreamLinesHtml(sumAnnualInr, sumAnnualCo2);
+      swapSaveDream.innerHTML = dreamLinesHtml(sumAnnualInr, sumAnnualCo2);
+    } finally {
+      notifySectionLayout();
+    }
   }
 
   function optionKey(roomId, instanceId) {
@@ -420,24 +460,28 @@
   }
 
   function renderWhatIf(ctx) {
-    if (!whatifSection) return;
-    const { lastState, scope } = ctx;
-    if (!lastState || !(lastState.rooms || []).some((r) => (r.appliances || []).length)) {
-      whatifSection.classList.add("hidden");
-      return;
+    try {
+      if (!whatifSection) return;
+      const { lastState, scope } = ctx;
+      if (!lastState || !(lastState.rooms || []).some((r) => (r.appliances || []).length)) {
+        whatifSection.classList.add("hidden");
+        return;
+      }
+      whatifSection.classList.remove("hidden");
+
+      const hasApp = (lastState.rooms || []).some((r) => {
+        if (scope !== "home" && r.id !== scope) return false;
+        return (r.appliances || []).length > 0;
+      });
+      if (whatifEmpty) whatifEmpty.classList.toggle("hidden", hasApp);
+      if (whatifForm) whatifForm.classList.toggle("hidden", !hasApp);
+      if (!hasApp) return;
+
+      buildWhatIfTable(ctx);
+      refreshWhatIfTotals(ctx);
+    } finally {
+      notifySectionLayout();
     }
-    whatifSection.classList.remove("hidden");
-
-    const hasApp = (lastState.rooms || []).some((r) => {
-      if (scope !== "home" && r.id !== scope) return false;
-      return (r.appliances || []).length > 0;
-    });
-    if (whatifEmpty) whatifEmpty.classList.toggle("hidden", hasApp);
-    if (whatifForm) whatifForm.classList.toggle("hidden", !hasApp);
-    if (!hasApp) return;
-
-    buildWhatIfTable(ctx);
-    refreshWhatIfTotals(ctx);
   }
 
   function renderInsights() {

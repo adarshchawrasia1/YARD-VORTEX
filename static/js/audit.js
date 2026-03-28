@@ -4,6 +4,7 @@
   const panel = document.getElementById("catalog-panel");
   const catalogTitle = document.getElementById("catalog-title");
   const catalogCategory = document.getElementById("catalog-category");
+  const catalogCategoryIconEl = document.getElementById("catalog-category-icon");
   const catalogVariant = document.getElementById("catalog-variant");
   const catalogContinueBtn = document.getElementById("catalog-continue-btn");
   const catalogStepList = document.getElementById("catalog-step-list");
@@ -47,6 +48,33 @@
     '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>';
   const ICON_TRASH =
     '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>';
+
+  /** Heroicons-style outline paths (24) for catalog categories */
+  const CATEGORY_ICON_PATHS = {
+    bulb:
+      "M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z",
+    tv: "M6 20.25h12m-7.5-3v3m4.5-3v3m-9-1.5h10.5A2.25 2.25 0 0020.25 18V6.75A2.25 2.25 0 0018 4.5H6A2.25 2.25 0 003.75 6.75V18A2.25 2.25 0 006 20.25z",
+    refrigerator:
+      "M4.5 4.5h15A1.5 1.5 0 0121 6v12a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 18V6a1.5 1.5 0 011.5-1.5z M7.5 9h9 M7.5 13.5h9",
+    microwave:
+      "M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.047 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z",
+    washing_machine:
+      "M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99",
+    ac: "M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z",
+    custom: "M12 4.5v15m7.5-7.5h-15",
+    default:
+      "M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9",
+  };
+
+  function categoryIconSvg(categoryId) {
+    const d = CATEGORY_ICON_PATHS[categoryId] || CATEGORY_ICON_PATHS.default;
+    return `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="${d}"/></svg>`;
+  }
+
+  function setCatalogCategoryIcon(categoryId) {
+    if (!catalogCategoryIconEl) return;
+    catalogCategoryIconEl.innerHTML = categoryIconSvg(categoryId || "default");
+  }
 
   let catalog = { categories: [] };
   let targetRoomId = null;
@@ -94,6 +122,7 @@
 
   function resetCatalogPicker() {
     if (catalogCategory) catalogCategory.value = "";
+    setCatalogCategoryIcon("default");
     resetVariantDropdown();
   }
 
@@ -106,6 +135,7 @@
   function onCatalogCategoryChange() {
     if (!catalogCategory || !catalogVariant) return;
     const cid = catalogCategory.value;
+    setCatalogCategoryIcon(cid || "default");
     catalogVariant.innerHTML = "";
     if (!cid) {
       resetVariantDropdown();
@@ -155,8 +185,8 @@
     if (!cid || !vid) return;
     const cat = (catalog.categories || []).find((c) => c.id === cid);
     const item = cat?.items?.find((i) => i.id === vid);
-    if (!item) return;
-    showDetailStep(item, cat.name);
+    if (!item || !cat) return;
+    showDetailStep(item, cat);
   }
 
   function syncCatalogStandby() {
@@ -176,12 +206,17 @@
     editStandbyW.disabled = !on;
   }
 
-  function showDetailStep(item, categoryName) {
+  function showDetailStep(item, cat) {
     pendingItem = item;
+    const categoryName = cat && cat.name ? cat.name : "";
+    const catId = cat && cat.id ? cat.id : "";
     if (catalogTitle) catalogTitle.textContent = "Usage & power";
     catalogStepList.classList.add("hidden");
     detailForm.classList.remove("hidden");
-    selectedLabel.textContent = categoryName ? `${categoryName} › ${item.name}` : item.name;
+    const line = categoryName ? `${categoryName} › ${item.name}` : item.name;
+    selectedLabel.innerHTML = `<span class="flex items-start gap-3"><span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border/80 bg-surface/80 text-sky-400" aria-hidden="true">${categoryIconSvg(
+      catId
+    )}</span><span class="min-w-0 flex-1 text-base font-medium text-slate-200">${escapeHtml(line)}</span></span>`;
     const isCustom = item.id === "custom";
     customNameRow.classList.toggle("hidden", !isCustom);
     customNameInput.value = isCustom ? "" : item.name;
