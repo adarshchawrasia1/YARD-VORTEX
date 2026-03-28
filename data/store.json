@@ -1,0 +1,40 @@
+{
+  "rooms": [
+    {
+      "id": "kitchen",
+      "name": "Kitchen",
+      "appliances": [
+        {
+          "instance_id": "a5a8316b-a10a-4368-9c6e-947defd5a059",
+          "catalog_id": "fridge_inv",
+          "name": "Inverter compressor",
+          "active_w": 40.0,
+          "active_hours_daily": 24.0,
+          "standby_when_inactive": false,
+          "standby_w": null,
+          "standby_hours_daily": null
+        },
+        {
+          "instance_id": "35104ddd-6d46-4e71-b722-eed3587143c7",
+          "catalog_id": "bulb_9w",
+          "name": "9W LED",
+          "active_w": 9.0,
+          "active_hours_daily": 12.0,
+          "standby_when_inactive": false,
+          "standby_w": null,
+          "standby_hours_daily": null
+        },
+        {
+          "instance_id": "6e4d45b8-5c00-41bd-8d76-b93184d8adcb",
+          "catalog_id": "tv_led_55",
+          "name": "LED ~55\"",
+          "active_w": 100.0,
+          "active_hours_daily": 4.0,
+          "standby_when_inactive": false,
+          "standby_w": null,
+          "standby_hours_daily": null
+        }
+      ]
+    }
+  ]
+}

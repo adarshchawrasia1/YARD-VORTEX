@@ -1,0 +1,62 @@
+{
+  "categories": [
+    {
+      "id": "bulb",
+      "name": "Bulb",
+      "items": [
+        { "id": "bulb_9w", "name": "9W LED", "default_active_w": 9, "default_standby_w": 0 },
+        { "id": "bulb_10w", "name": "10W LED", "default_active_w": 10, "default_standby_w": 0 },
+        { "id": "bulb_20w", "name": "20W LED", "default_active_w": 20, "default_standby_w": 0 }
+      ]
+    },
+    {
+      "id": "tv",
+      "name": "TV",
+      "items": [
+        { "id": "tv_led_32", "name": "LED ~32\"", "default_active_w": 55, "default_standby_w": 0.5 },
+        { "id": "tv_led_43", "name": "LED ~43\"", "default_active_w": 75, "default_standby_w": 0.5 },
+        { "id": "tv_led_55", "name": "LED ~55\"", "default_active_w": 100, "default_standby_w": 0.5 }
+      ]
+    },
+    {
+      "id": "refrigerator",
+      "name": "Refrigerator",
+      "items": [
+        { "id": "fridge_std", "name": "Standard single door", "default_active_w": 120, "default_standby_w": 5 },
+        { "id": "fridge_double", "name": "Double door", "default_active_w": 150, "default_standby_w": 5 },
+        { "id": "fridge_inv", "name": "Inverter compressor", "default_active_w": 100, "default_standby_w": 4 }
+      ]
+    },
+    {
+      "id": "microwave",
+      "name": "Microwave oven",
+      "items": [
+        { "id": "mw_20l", "name": "~20 L", "default_active_w": 800, "default_standby_w": 3 },
+        { "id": "mw_25l", "name": "~25 L", "default_active_w": 1000, "default_standby_w": 3 }
+      ]
+    },
+    {
+      "id": "washing_machine",
+      "name": "Washing machine",
+      "items": [
+        { "id": "wm_top", "name": "Top load", "default_active_w": 500, "default_standby_w": 2 },
+        { "id": "wm_front", "name": "Front load", "default_active_w": 450, "default_standby_w": 2 }
+      ]
+    },
+    {
+      "id": "ac",
+      "name": "Air conditioner",
+      "items": [
+        { "id": "ac_split_1", "name": "Split 1 ton", "default_active_w": 1200, "default_standby_w": 5 },
+        { "id": "ac_split_1_5", "name": "Split 1.5 ton", "default_active_w": 1500, "default_standby_w": 5 }
+      ]
+    },
+    {
+      "id": "custom",
+      "name": "Custom appliance",
+      "items": [
+        { "id": "custom", "name": "Not listed — enter details below", "default_active_w": 100, "default_standby_w": 1 }
+      ]
+    }
+  ]
+}
