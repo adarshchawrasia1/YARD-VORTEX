@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YARD VORTEX — Home Energy Waste Finder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0f0a;
+      --bg2: #111711;
+      --bg3: #161e16;
+      --bg4: #1c261c;
+      --card: #131a13;
+      --border: rgba(80,200,80,0.1);
+      --border2: rgba(80,200,80,0.2);
+      --border3: rgba(80,200,80,0.35);
+      --green: #4ade80;
+      --green2: #22c55e;
+      --green3: #16a34a;
+      --green-dim: rgba(74,222,128,0.12);
+      --green-dim2: rgba(74,222,128,0.05);
+      --amber: #fbbf24;
+      --amber-dim: rgba(251,191,36,0.12);
+      --red: #f87171;
+      --red-dim: rgba(248,113,113,0.12);
+      --text: #e8f5e8;
+      --text2: #8db88d;
+      --text3: #4a6b4a;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-lg: 16px;
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      background-image: radial-gradient(ellipse 80% 40% at 50% -10%, rgba(74,222,128,0.08) 0%, transparent 60%);
+    }
+
+    .app { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; animation: fadeUp 0.5s ease both; }
+
+    .header { margin-bottom: 2rem; display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .header-left h1 {
+      font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800;
+      background: linear-gradient(135deg, #4ade80 0%, #86efac 50%, #fbbf24 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      letter-spacing: -0.03em; line-height: 1.1;
+    }
+    .header-left p { font-size: 14px; color: var(--text2); margin-top: 6px; font-weight: 300; }
+    .header-badge { display: flex; align-items: center; gap: 6px; background: var(--green-dim); border: 1px solid var(--border2); padding: 6px 14px; border-radius: 999px; font-size: 12px; color: var(--green); font-weight: 500; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+
+    .rate-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; font-size: 13px; color: var(--text2); flex-wrap: wrap; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; }
+    .rate-label { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); }
+    .rate-row input, .rate-row select { height: 36px; padding: 0 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); transition: border-color 0.2s; }
+    .rate-row input { width: 80px; }
+    .rate-row select { width: 220px; }
+    .rate-row input:focus, .rate-row select:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(74,222,128,0.1); }
+    .sep { width: 1px; height: 24px; background: var(--border2); margin: 0 4px; }
+
+    .tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 5px; }
+    .tab { flex: 1; padding: 9px 8px; font-size: 13px; font-family: 'Syne', sans-serif; font-weight: 600; color: var(--text3); cursor: pointer; border: none; background: none; border-radius: var(--radius-sm); transition: all 0.2s; letter-spacing: 0.01em; }
+    .tab:hover:not(.active) { color: var(--text2); background: var(--bg3); }
+    .tab.active { background: var(--green); color: #0a0f0a; box-shadow: 0 2px 12px rgba(74,222,128,0.3); }
+    .panel { display: none; }
+    .panel.active { display: block; animation: fadeUp 0.3s ease both; }
+
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 1.25rem; }
+    .metric { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; position: relative; overflow: hidden; transition: border-color 0.2s; }
+    .metric::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg, var(--green), transparent); }
+    .metric:hover { border-color: var(--border2); }
+    .metric-label { font-size: 11px; color: var(--text3); margin-bottom: 6px; font-family: 'Syne', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; }
+    .metric-value { font-size: 24px; font-weight: 700; font-family: 'Syne', sans-serif; color: var(--green); }
+    .metric-value.warn { color: var(--amber); }
+    .metric-value.danger { color: var(--red); }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+    .card-title { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin-bottom: 16px; }
+
+    select, input[type=text], input[type=number] { width: 100%; height: 38px; padding: 0 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); transition: all 0.2s; }
+    select:focus, input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(74,222,128,0.1); }
+    select option { background: var(--bg3); }
+
+    .btn { height: 38px; padding: 0 18px; font-size: 13px; font-family: 'Syne', sans-serif; font-weight: 600; cursor: pointer; border: 1px solid var(--border2); border-radius: var(--radius-sm); background: transparent; color: var(--text2); transition: all 0.2s; }
+    .btn:hover { background: var(--bg3); border-color: var(--border3); color: var(--text); }
+    .btn.primary { background: var(--green); color: #0a0f0a; border-color: var(--green); font-weight: 700; }
+    .btn.primary:hover { background: #86efac; box-shadow: 0 4px 16px rgba(74,222,128,0.3); }
+    .btn.danger { color: var(--red); border-color: transparent; background: transparent; font-size: 20px; padding: 0; width: 36px; height: 36px; }
+    .btn.danger:hover { background: var(--red-dim); border-radius: var(--radius-sm); }
+
+    .add-row { display: grid; grid-template-columns: 2fr 1.1fr 0.75fr 0.75fr 0.75fr auto; gap: 8px; align-items: center; }
+
+    .appliance-header { display: grid; grid-template-columns: 2fr 0.8fr 0.6fr 0.6fr 0.8fr 0.8fr 0.55fr 36px; gap: 8px; padding: 6px 0 10px; font-size: 10px; color: var(--text3); font-family: 'Syne', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+    .appliance-row { display: grid; grid-template-columns: 2fr 0.8fr 0.6fr 0.6fr 0.8fr 0.8fr 0.55fr 36px; gap: 8px; align-items: center; padding: 10px 0; border-top: 1px solid var(--border); font-size: 13px; transition: background 0.15s; border-radius: 4px; }
+    .appliance-row:hover { background: var(--green-dim2); }
+
+    .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; font-family: 'Syne', sans-serif; }
+    .badge-high { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+    .badge-mid { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(251,191,36,0.2); }
+    .badge-low { background: var(--green-dim); color: var(--green); border: 1px solid var(--border2); }
+
+    .rank-item { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-top: 1px solid var(--border); }
+    .rank-num { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--text3); min-width: 32px; text-align: center; }
+    .rank-num.top { color: var(--amber); }
+    .rank-bar-wrap { flex: 1; }
+    .rank-name { font-size: 14px; font-weight: 500; }
+    .rank-room { font-size: 12px; color: var(--text3); margin-left: 8px; }
+    .rank-bar { height: 8px; border-radius: 4px; background: var(--bg3); margin-top: 6px; overflow: hidden; border: 1px solid var(--border); }
+    .rank-fill { height: 100%; border-radius: 4px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+    .rank-fill.high { background: linear-gradient(90deg, #f87171, #fbbf24); }
+    .rank-fill.mid { background: linear-gradient(90deg, #fbbf24, #4ade80); }
+    .rank-fill.low { background: var(--green2); }
+    .rank-standby { font-size: 11px; color: var(--red); margin-top: 3px; }
+    .rank-meta { font-size: 13px; color: var(--text2); min-width: 180px; text-align: right; line-height: 1.7; }
+    .rank-meta strong { color: var(--text); font-weight: 600; }
+
+    .swap-item { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; background: var(--bg3); border-radius: var(--radius); margin-bottom: 8px; border: 1px solid var(--border); transition: border-color 0.2s; }
+    .swap-item:hover { border-color: var(--border2); }
+    .swap-icon { font-size: 22px; min-width: 28px; }
+    .swap-body { flex: 1; }
+    .swap-text { font-size: 13px; line-height: 1.6; color: var(--text2); }
+    .swap-save { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 600; color: var(--green); font-family: 'Syne', sans-serif; }
+
+    .sim-header { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; padding-bottom: 10px; font-size: 10px; color: var(--text3); font-family: 'Syne', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+    .sim-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; align-items: center; padding: 12px 0; border-top: 1px solid var(--border); font-size: 13px; }
+    .sim-name { font-weight: 500; }
+    .sim-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+    .sim-result { text-align: right; font-weight: 600; font-family: 'Syne', sans-serif; color: var(--text3); }
+    .sim-result.save { color: var(--green); }
+    .sim-lbl { font-size: 11px; color: var(--text3); margin-top: 3px; }
+    .sim-total-card { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(74,222,128,0.1) 0%, rgba(74,222,128,0.03) 100%); border: 1px solid var(--border3); }
+    .sim-total-label { font-size: 13px; color: var(--text2); }
+    .sim-total-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+    .sim-total-value { font-size: 26px; font-weight: 800; font-family: 'Syne', sans-serif; color: var(--green); }
+    input[type=range] { width: 100%; accent-color: var(--green); cursor: pointer; }
+
+    .yc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 10px; }
+    .yc-card { background: var(--bg3); border-radius: var(--radius); padding: 18px 14px; text-align: center; border: 1px solid var(--border); transition: all 0.2s; }
+    .yc-card:hover { border-color: var(--border3); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+    .yc-emoji { font-size: 34px; display: block; margin-bottom: 10px; }
+    .yc-item { font-size: 12px; color: var(--text2); margin-bottom: 8px; line-height: 1.4; }
+    .yc-count { font-size: 28px; font-weight: 800; font-family: 'Syne', sans-serif; color: var(--green); margin-bottom: 2px; }
+    .yc-price { font-size: 11px; color: var(--text3); }
+    .yc-partial { font-size: 11px; color: var(--amber); margin-top: 6px; font-weight: 500; }
+    .yc-controls { display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; align-items: center; margin-bottom: 1.25rem; }
+    .yc-saving-badge { background: var(--green-dim); border: 1px solid var(--border2); padding: 8px 16px; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; font-family: 'Syne', sans-serif; color: var(--green); text-align: center; }
+    .yc-compound-card { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(251,191,36,0.1) 0%, rgba(251,191,36,0.03) 100%); border: 1px solid rgba(251,191,36,0.25); }
+    .yc-compound-label { font-size: 13px; color: var(--text2); margin-bottom: 4px; }
+    .yc-compound-sub { font-size: 11px; color: var(--text3); }
+    .yc-compound-value { font-size: 32px; font-weight: 800; font-family: 'Syne', sans-serif; color: var(--amber); }
+
+    .empty { text-align: center; padding: 3rem; color: var(--text3); font-size: 14px; }
+
+    @media (max-width: 640px) {
+      .add-row { grid-template-columns: 1fr 1fr; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .tabs { flex-wrap: wrap; }
+      .tab { flex: none; width: calc(50% - 2px); }
+      .yc-controls { grid-template-columns: 1fr; }
+      .sim-total-card, .yc-compound-card { flex-direction: column; gap: 8px; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-left">
+      <h1>Phantom Load</h1>
+      <p>Home energy waste finder — appliance by appliance</p>
+    </div>
+    <div class="header-badge"><div class="dot"></div> Live calculator</div>
+  </div>
+
+  <div class="rate-row">
+    <span class="rate-label">Rate</span>
+    <input type="number" id="rate" value="7" min="1" max="30" step="0.5" style="width:80px">
+    <span style="color:var(--text3)">₹/kWh</span>
+    <div class="sep"></div>
+    <span class="rate-label">Region</span>
+    <select id="region">
+      <option value="0.82">India average (0.82 kg CO₂/kWh)</option>
+      <option value="0.71">South India (0.71)</option>
+      <option value="0.94">North India (0.94)</option>
+      <option value="0.45">Hydro-heavy region (0.45)</option>
+    </select>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('inventory',this)">Inventory</button>
+    <button class="tab" onclick="showTab('ranking',this)">Waste Ranking</button>
+    <button class="tab" onclick="showTab('swaps',this)">Swap &amp; Save</button>
+    <button class="tab" onclick="showTab('simulator',this)">What-If</button>
+    <button class="tab" onclick="showTab('youcould',this)">You Could</button>
+  </div>
+
+  <!-- INVENTORY -->
+  <div id="tab-inventory" class="panel active">
+    <div class="card">
+      <div class="card-title">Add appliance</div>
+      <div class="add-row">
+        <select id="add-cat" onchange="onCatChange()">
+          <option value="">— select from catalog —</option>
+          <option value="AC (1.5 ton)|1500">AC (1.5 ton) · 1500W</option>
+          <option value="AC (2 ton)|2000">AC (2 ton) · 2000W</option>
+          <option value="Refrigerator|150">Refrigerator · 150W</option>
+          <option value="Washing Machine|500">Washing Machine · 500W</option>
+          <option value="Microwave|1200">Microwave · 1200W</option>
+          <option value="TV LED 43&quot;|100">TV LED 43" · 100W</option>
+          <option value="TV LED 55&quot;|150">TV LED 55" · 150W</option>
+          <option value="Set-top Box|20">Set-top Box · 20W</option>
+          <option value="Laptop|65">Laptop · 65W</option>
+          <option value="Desktop PC|300">Desktop PC · 300W</option>
+          <option value="Monitor|40">Monitor · 40W</option>
+          <option value="WiFi Router|10">WiFi Router · 10W</option>
+          <option value="Ceiling Fan|75">Ceiling Fan · 75W</option>
+          <option value="LED Bulb|9">LED Bulb · 9W</option>
+          <option value="CFL Bulb|23">CFL Bulb · 23W</option>
+          <option value="Incandescent Bulb|60">Incandescent Bulb · 60W</option>
+          <option value="Geyser|2000">Geyser · 2000W</option>
+          <option value="Iron|1000">Iron · 1000W</option>
+          <option value="Mixer/Grinder|750">Mixer/Grinder · 750W</option>
+          <option value="Phone Charger|5">Phone Charger · 5W</option>
+          <option value="Gaming Console|150">Gaming Console · 150W</option>
+          <option value="Custom|0">Custom...</option>
+        </select>
+        <input type="text" id="add-name" placeholder="Custom name" style="display:none">
+        <input type="number" id="add-watts" placeholder="Watts" min="1">
+        <input type="number" id="add-hours" placeholder="Hrs/day" min="0.1" max="24" step="0.5" value="4">
+        <select id="add-standby">
+          <option value="0">No standby</option>
+          <option value="5">Low (5W)</option>
+          <option value="15">Med (15W)</option>
+          <option value="30">High (30W)</option>
+        </select>
+        <select id="add-room">
+          <option>Living room</option>
+          <option>Bedroom</option>
+          <option>Kitchen</option>
+          <option>Study</option>
+          <option>Bathroom</option>
+          <option>Other</option>
+        </select>
+        <button class="btn primary" onclick="addAppliance()">+ Add</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Your appliances</div>
+      <div class="appliance-header">
+        <span>Appliance</span><span>Room</span><span>Watts</span><span>Hrs/day</span><span>₹/month</span><span>CO₂/yr kg</span><span>Score</span><span></span>
+      </div>
+      <div id="appliance-rows"></div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">Monthly cost</div><div class="metric-value" id="m-cost">₹0</div></div>
+      <div class="metric"><div class="metric-label">Annual cost</div><div class="metric-value warn" id="m-annual">₹0</div></div>
+      <div class="metric"><div class="metric-label">kWh / month</div><div class="metric-value" id="m-kwh">0</div></div>
+      <div class="metric"><div class="metric-label">CO₂ / year kg</div><div class="metric-value danger" id="m-co2">0</div></div>
+    </div>
+  </div>
+
+  <!-- RANKING -->
+  <div id="tab-ranking" class="panel">
+    <div class="card">
+      <div class="card-title">Appliances ranked by waste score</div>
+      <div id="rank-list"><div class="empty">Add appliances in the Inventory tab first</div></div>
+    </div>
+  </div>
+
+  <!-- SWAPS -->
+  <div id="tab-swaps" class="panel">
+    <div class="card">
+      <div class="card-title">Swap &amp; save recommendations</div>
+      <div id="swap-list"><div class="empty">Add appliances to get personalised recommendations</div></div>
+    </div>
+  </div>
+
+  <!-- SIMULATOR -->
+  <div id="tab-simulator" class="panel">
+    <div class="card">
+      <div class="card-title">What-if simulator — drag to reduce usage</div>
+      <div class="sim-header"><span>Appliance</span><span>Reduce by (hrs/day)</span><span style="text-align:right">Annual saving</span></div>
+      <div id="sim-rows"><div class="empty">Add appliances to simulate savings</div></div>
+    </div>
+    <div class="sim-total-card">
+      <div>
+        <div class="sim-total-label">Total projected annual saving</div>
+        <div class="sim-total-sub">across all selected reductions</div>
+      </div>
+      <div class="sim-total-value" id="sim-total">₹0 · 0 kg CO₂</div>
+    </div>
+  </div>
+
+  <!-- YOU COULD -->
+  <div id="tab-youcould" class="panel">
+    <div class="card">
+      <div class="card-title">What could your savings buy?</div>
+      <div class="yc-controls">
+        <select id="yc-appliance" onchange="renderYouCould()">
+          <option value="">— select an appliance —</option>
+        </select>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;color:var(--text2);white-space:nowrap">Reduce by</span>
+          <input type="number" id="yc-hours" value="1" min="0.5" max="10" step="0.5" style="width:70px" oninput="renderYouCould()">
+          <span style="font-size:13px;color:var(--text2)">hrs/day</span>
+        </div>
+        <div class="yc-saving-badge" id="yc-saving-badge">₹0 saved/yr</div>
+      </div>
+      <div id="yc-cards"><div class="empty">Select an appliance above to see what you could do with the savings</div></div>
+    </div>
+    <div class="yc-compound-card">
+      <div>
+        <div class="yc-compound-label">Over 5 years, that saving compounds to</div>
+        <div class="yc-compound-sub">at 7% annual return (fixed deposit rate)</div>
+      </div>
+      <div class="yc-compound-value" id="yc-compound">₹0</div>
+    </div>
+  </div>
+
+</div>
+<script>
+  let appliances = [
+    { id:1, name:'AC (1.5 ton)', room:'Bedroom', watts:1500, hours:8, standby:5 },
+    { id:2, name:'Refrigerator', room:'Kitchen', watts:150, hours:24, standby:0 },
+    { id:3, name:'TV LED 55"', room:'Living room', watts:150, hours:5, standby:15 },
+    { id:4, name:'Set-top Box', room:'Living room', watts:20, hours:5, standby:30 },
+    { id:5, name:'Ceiling Fan', room:'Bedroom', watts:75, hours:10, standby:0 },
+    { id:6, name:'Incandescent Bulb', room:'Living room', watts:60, hours:6, standby:0 },
+    { id:7, name:'Geyser', room:'Bathroom', watts:2000, hours:1, standby:0 },
+    { id:8, name:'Desktop PC', room:'Study', watts:300, hours:6, standby:15 },
+    { id:9, name:'WiFi Router', room:'Living room', watts:10, hours:24, standby:0 },
+  ];
+  let nextId = 10;
+  let simReductions = {};
+
+  const getRate = () => parseFloat(document.getElementById('rate').value) || 7;
+  const getEF = () => parseFloat(document.getElementById('region').value) || 0.82;
+  const fmt = n => Math.round(n).toLocaleString('en-IN');
+
+  function calc(a) {
+    const rate = getRate(), ef = getEF();
+    const activeKwh = a.watts * a.hours / 1000;
+    const standbyKwh = a.standby * (24 - a.hours) / 1000;
+    const totalKwh = activeKwh + standbyKwh;
+    const monthKwh = totalKwh * 30;
+    const yearKwh = totalKwh * 365;
+    const monthCost = monthKwh * rate;
+    const yearCost = yearKwh * rate;
+    const yearCo2 = yearKwh * ef;
+    const standbyPct = totalKwh > 0 ? standbyKwh / totalKwh : 0;
+    const score = Math.round(yearCost * 0.5 + yearCo2 * 0.3 + standbyPct * 1000 * 0.2);
+    return { activeKwh, standbyKwh, totalKwh, monthKwh, yearKwh, monthCost, yearCost, yearCo2, standbyPct, score };
+  }
+
+  function badge(score) {
+    if (score > 5000) return '<span class="badge badge-high">High</span>';
+    if (score > 1500) return '<span class="badge badge-mid">Medium</span>';
+    return '<span class="badge badge-low">Low</span>';
+  }
+
+  function renderAll() {
+    renderInventory(); renderMetrics(); renderRanking(); renderSwaps(); renderSimulator(); populateYcDropdown();
+  }
+
+  function renderInventory() {
+    const el = document.getElementById('appliance-rows');
+    if (!appliances.length) { el.innerHTML = '<div class="empty">No appliances yet — add one above</div>'; return; }
+    el.innerHTML = appliances.map(a => {
+      const c = calc(a);
+      return `<div class="appliance-row">
+        <span style="font-weight:500;color:var(--text)">${a.name}</span>
+        <span style="color:var(--text3);font-size:12px">${a.room}</span>
+        <span style="color:var(--text2)">${a.watts}W</span>
+        <span style="color:var(--text2)">${a.hours}h</span>
+        <span style="color:var(--green);font-weight:600">₹${fmt(c.monthCost)}</span>
+        <span style="color:var(--red)">${fmt(c.yearCo2)}</span>
+        <span>${badge(c.score)}</span>
+        <button class="btn danger" onclick="remove(${a.id})">×</button>
+      </div>`;
+    }).join('');
+  }
+
+  function renderMetrics() {
+    let mc=0, yc=0, mk=0, yco2=0;
+    appliances.forEach(a => { const c=calc(a); mc+=c.monthCost; yc+=c.yearCost; mk+=c.monthKwh; yco2+=c.yearCo2; });
+    document.getElementById('m-cost').textContent = '₹'+fmt(mc);
+    document.getElementById('m-annual').textContent = '₹'+fmt(yc);
+    document.getElementById('m-kwh').textContent = fmt(mk);
+    document.getElementById('m-co2').textContent = fmt(yco2);
+  }
+
+  function renderRanking() {
+    const el = document.getElementById('rank-list');
+    if (!appliances.length) { el.innerHTML = '<div class="empty">Add appliances in the Inventory tab first</div>'; return; }
+    const sorted = [...appliances].map(a=>({a,c:calc(a)})).sort((x,y)=>y.c.score-x.c.score);
+    const max = sorted[0].c.score;
+    el.innerHTML = sorted.map(({a,c},i)=>{
+      const pct = Math.round(c.score/max*100);
+      const cls = pct>65?'high':pct>35?'mid':'low';
+      return `<div class="rank-item">
+        <div class="rank-num ${i===0?'top':''}">${i+1}</div>
+        <div class="rank-bar-wrap">
+          <div><span class="rank-name">${a.name}</span><span class="rank-room">${a.room}</span></div>
+          <div class="rank-bar"><div class="rank-fill ${cls}" style="width:${pct}%"></div></div>
+          ${c.standbyPct>0.15?`<div class="rank-standby">⚡ Standby drain: ${Math.round(c.standbyPct*100)}% of total usage</div>`:''}
+        </div>
+        <div class="rank-meta"><strong>₹${fmt(c.yearCost)}</strong>/yr<br>${fmt(c.yearCo2)} kg CO₂</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderSwaps() {
+    const el = document.getElementById('swap-list');
+    const swaps = [];
+    appliances.forEach(a => {
+      const c = calc(a);
+      if (a.name.includes('Incandescent')) {
+        const s=(a.watts-9)*a.hours/1000*365*getRate(), co2=(a.watts-9)*a.hours/1000*365*getEF();
+        swaps.push({icon:'💡',text:`Replace ${a.name} (${a.watts}W) with a 9W LED bulb`,save:s,co2});
+      }
+      if (a.name.includes('CFL')) {
+        const s=(a.watts-9)*a.hours/1000*365*getRate(), co2=(a.watts-9)*a.hours/1000*365*getEF();
+        swaps.push({icon:'💡',text:`Replace ${a.name} (${a.watts}W) with a 9W LED bulb`,save:s,co2});
+      }
+      if (a.standby>0 && c.standbyKwh*365*getRate()>200) {
+        const s=c.standbyKwh*365*getRate(), co2=c.standbyKwh*365*getEF();
+        swaps.push({icon:'🔌',text:`Unplug ${a.name} completely when not in use — eliminate standby draw`,save:s,co2});
+      }
+      if (a.name.includes('AC') && a.hours>5) {
+        const s=a.watts*1/1000*365*getRate(), co2=a.watts*1/1000*365*getEF();
+        swaps.push({icon:'❄️',text:`Reduce ${a.name} by 1 hr/day — e.g. set to 26°C instead of 24°C`,save:s,co2});
+      }
+      if (a.name.includes('Geyser')) {
+        const s=a.watts*0.25/1000*365*getRate(), co2=a.watts*0.25/1000*365*getEF();
+        swaps.push({icon:'🚿',text:`Reduce ${a.name} heating by 15 min/day`,save:s,co2});
+      }
+      if (a.name.includes('Desktop')) {
+        const s=(a.watts-65)*a.hours/1000*365*getRate()*0.5, co2=(a.watts-65)*a.hours/1000*365*getEF()*0.5;
+        swaps.push({icon:'💻',text:`Use a laptop instead of ${a.name} for half your sessions`,save:s,co2});
+      }
+    });
+    if (!swaps.length) { el.innerHTML = '<div class="empty">Add appliances to get personalised recommendations</div>'; return; }
+    swaps.sort((a,b)=>b.save-a.save);
+    el.innerHTML = swaps.map(s=>`<div class="swap-item">
+      <div class="swap-icon">${s.icon}</div>
+      <div class="swap-body">
+        <div class="swap-text">${s.text}</div>
+        <div class="swap-save">Save ₹${fmt(s.save)}/yr · ${fmt(s.co2)} kg CO₂</div>
+      </div>
+    </div>`).join('');
+  }
+
+  function renderSimulator() {
+    const el = document.getElementById('sim-rows');
+    if (!appliances.length) { el.innerHTML = '<div class="empty">Add appliances to simulate savings</div>'; return; }
+    el.innerHTML = appliances.map(a => {
+      const c = calc(a);
+      const rid = 'r'+a.id;
+      if (!(rid in simReductions)) simReductions[rid] = 0;
+      const red = simReductions[rid];
+      const max = Math.min(a.hours, 10);
+      const saveCost = a.watts*red/1000*365*getRate();
+      const saveCo2 = a.watts*red/1000*365*getEF();
+      return `<div class="sim-row">
+        <div>
+          <div class="sim-name">${a.name}</div>
+          <div class="sim-sub">${a.hours}h/day · ₹${fmt(c.yearCost)}/yr</div>
+        </div>
+        <div>
+          <input type="range" min="0" max="${max}" step="0.5" value="${red}" oninput="updateSim('${rid}',this.value,'${a.id}')">
+          <div class="sim-lbl" id="lbl-${rid}">${red>0?'−'+red+'h/day':'drag to reduce'}</div>
+        </div>
+        <div class="sim-result${red>0?' save':''}" id="res-${rid}">${red>0?'−₹'+fmt(saveCost)+'<br><span style="font-size:11px;font-weight:400;color:var(--text3)">−'+fmt(saveCo2)+' kg CO₂</span>':'—'}</div>
+      </div>`;
+    }).join('');
+    updateSimTotal();
+  }
+
+  function updateSim(rid, val, aid) {
+    simReductions[rid] = parseFloat(val);
+    const a = appliances.find(a=>a.id==aid);
+    if (!a) return;
+    const red = parseFloat(val);
+    const saveCost = a.watts*red/1000*365*getRate();
+    const saveCo2 = a.watts*red/1000*365*getEF();
+    const lbl = document.getElementById('lbl-'+rid);
+    const res = document.getElementById('res-'+rid);
+    if (lbl) lbl.textContent = red>0?'−'+red+'h/day':'drag to reduce';
+    if (res) {
+      res.innerHTML = red>0?`−₹${fmt(saveCost)}<br><span style="font-size:11px;font-weight:400;color:var(--text3)">−${fmt(saveCo2)} kg CO₂</span>`:'—';
+      res.className='sim-result'+(red>0?' save':'');
+    }
+    updateSimTotal();
+  }
+
+  function updateSimTotal() {
+    let tc=0, tco2=0;
+    appliances.forEach(a=>{ const red=simReductions['r'+a.id]||0; tc+=a.watts*red/1000*365*getRate(); tco2+=a.watts*red/1000*365*getEF(); });
+    const el = document.getElementById('sim-total');
+    if (el) el.textContent = '₹'+fmt(tc)+' · '+fmt(tco2)+' kg CO₂';
+  }
+
+  const THINGS = [
+    { emoji:'📱', name:'iPhone 16', price:79900 },
+    { emoji:'✈️', name:'Trip to Goa', price:12000 },
+    { emoji:'🏍️', name:'Royal Enfield EMI', price:6500 },
+    { emoji:'🎮', name:'PS5', price:54990 },
+    { emoji:'👟', name:'Nike Air Max', price:12000 },
+    { emoji:'🍕', name:'Dominos party order', price:1200 },
+    { emoji:'📚', name:'Udemy course', price:499 },
+    { emoji:'🎬', name:'Netflix annual plan', price:6500 },
+    { emoji:'☕', name:'Starbucks coffee', price:500 },
+    { emoji:'🏋️', name:'Gym membership (month)', price:1500 },
+    { emoji:'🎵', name:'Spotify annual plan', price:1189 },
+    { emoji:'🌴', name:'Bali trip (budget)', price:40000 },
+  ];
+
+  function populateYcDropdown() {
+    const sel = document.getElementById('yc-appliance');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">— select an appliance —</option>' +
+      appliances.map(a=>`<option value="${a.id}" ${a.id==cur?'selected':''}>${a.name} (${a.room})</option>`).join('');
+    renderYouCould();
+  }
+
+  function renderYouCould() {
+    const aid = document.getElementById('yc-appliance').value;
+    const hrs = parseFloat(document.getElementById('yc-hours').value) || 1;
+    const badgeEl = document.getElementById('yc-saving-badge');
+    const cards = document.getElementById('yc-cards');
+    const compound = document.getElementById('yc-compound');
+    if (!aid || !appliances.length) {
+      badgeEl.textContent = '₹0 saved/yr';
+      cards.innerHTML = '<div class="empty">Select an appliance above to see what you could do with the savings</div>';
+      compound.textContent = '₹0';
+      return;
+    }
+    const a = appliances.find(x=>x.id==aid);
+    if (!a) return;
+    const annualSaving = Math.round(a.watts * hrs / 1000 * 365 * getRate());
+    badgeEl.textContent = '₹'+fmt(annualSaving)+' saved/yr';
+    if (annualSaving < 100) {
+      cards.innerHTML = '<div class="empty">Reduce by more hours to unlock meaningful savings</div>';
+      compound.textContent = '₹'+fmt(annualSaving*5);
+      return;
+    }
+    cards.innerHTML = '<div class="yc-grid">' + THINGS.map(t => {
+      const count = Math.floor(annualSaving / t.price);
+      const pct = Math.round((annualSaving % t.price) / t.price * 100);
+      if (count === 0 && pct < 10) return '';
+      const countLine = count >= 1
+        ? `<div class="yc-count">${count}×</div>`
+        : `<div class="yc-count" style="font-size:16px">Almost</div>`;
+      const partialLine = count === 0
+        ? `<div class="yc-partial">You're ${pct}% there</div>`
+        : pct > 20 ? `<div class="yc-partial">+ ${pct}% of another</div>` : '';
+      return `<div class="yc-card">
+        <span class="yc-emoji">${t.emoji}</span>
+        <div class="yc-item">${t.name}</div>
+        ${countLine}
+        <div class="yc-price">₹${fmt(t.price)} each</div>
+        ${partialLine}
+      </div>`;
+    }).filter(Boolean).join('') + '</div>';
+    const fv = Math.round(annualSaving * ((Math.pow(1.07,5)-1)/0.07));
+    compound.textContent = '₹'+fmt(fv);
+  }
+
+  function addAppliance() {
+    const cat = document.getElementById('add-cat').value;
+    const nameInput = document.getElementById('add-name').value.trim();
+    const watts = parseFloat(document.getElementById('add-watts').value);
+    const hours = parseFloat(document.getElementById('add-hours').value);
+    const standby = parseInt(document.getElementById('add-standby').value);
+    const room = document.getElementById('add-room').value;
+    let name = cat && cat !== 'Custom|0' ? cat.split('|')[0] : nameInput;
+    if (!name || !watts || !hours) { alert('Please fill in all fields.'); return; }
+    appliances.push({ id:nextId++, name, room, watts, hours, standby });
+    saveToStorage(); renderAll();
+  }
+
+  function remove(id) {
+    appliances = appliances.filter(a=>a.id!==id);
+    delete simReductions['r'+id];
+    saveToStorage(); renderAll();
+  }
+
+  function showTab(name, btn) {
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+name).classList.add('active');
+    renderAll();
+    if (name==='youcould') renderYouCould();
+  }
+
+  function onCatChange() {
+    const cat = document.getElementById('add-cat').value;
+    const nameInput = document.getElementById('add-name');
+    const wattsInput = document.getElementById('add-watts');
+    if (cat==='Custom|0') { nameInput.style.display='block'; wattsInput.value=''; }
+    else if (cat) { nameInput.style.display='none'; wattsInput.value=cat.split('|')[1]; }
+    else { nameInput.style.display='none'; }
+  }
+
+  function saveToStorage() {
+    try { localStorage.setItem('phantom-appliances', JSON.stringify(appliances)); localStorage.setItem('phantom-nextid', nextId); } catch(e) {}
+  }
+
+  function loadFromStorage() {
+    try {
+      const saved = localStorage.getItem('phantom-appliances');
+      const sid = localStorage.getItem('phantom-nextid');
+      if (saved) { appliances = JSON.parse(saved); nextId = parseInt(sid)||10; }
+    } catch(e) {}
+  }
+
+  document.getElementById('rate').addEventListener('input', renderAll);
+  document.getElementById('region').addEventListener('input', renderAll);
+  loadFromStorage();
+  renderAll();
+</script>
+</body>
+</html>
