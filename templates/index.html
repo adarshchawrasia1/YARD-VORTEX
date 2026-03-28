@@ -88,6 +88,23 @@
 
               <div>
                 <h3 class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  Show amounts for
+                </h3>
+                <label for="usage-period-select" class="sr-only">Time period for totals</label>
+                <select
+                  id="usage-period-select"
+                  class="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                >
+                  <option value="1d">Per day</option>
+                  <option value="1m">Per month (~30.44 days)</option>
+                  <option value="3m">Per 3 months (quarter)</option>
+                  <option value="6m">Per 6 months</option>
+                  <option value="1y" selected>Per year (365 days)</option>
+                </select>
+              </div>
+
+              <div>
+                <h3 class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                   Grid / region (emission factor)
                 </h3>
                 <p class="mb-2 text-xs leading-relaxed text-slate-500">
@@ -123,15 +140,16 @@
               </div>
 
               <p id="usage-power-subtitle" class="text-xs leading-relaxed text-slate-500">
-                Month ≈ 30.44 days · Year = 365 days. Hover the chart for cost and CO₂ per category.
+                Totals scale from average daily use × days in the period. Hover the chart for the same period.
               </p>
 
               <div
                 id="totals-kwh-wrap"
                 class="hidden rounded-lg border border-border/80 bg-surface/50 px-3 py-2.5"
               >
-                <span class="text-[11px] font-medium uppercase tracking-wide text-slate-500">Energy (selection)</span>
+                <span id="totals-kwh-label" class="text-[11px] font-medium uppercase tracking-wide text-slate-500">Energy (this period)</span>
                 <p id="totals-kwh" class="mt-1 font-mono text-sm text-slate-200"></p>
+                <p id="totals-kwh-daily" class="mt-1 font-mono text-[11px] text-slate-500"></p>
               </div>
 
               <div
@@ -171,7 +189,8 @@
                   <p class="text-[11px] font-semibold uppercase tracking-wider text-sky-300/90">
                     Total electricity cost
                   </p>
-                  <p id="hero-cost-yr" class="mt-2 text-2xl font-bold tracking-tight text-sky-200"></p>
+                  <p id="hero-cost-period-tag" class="mt-1 text-[10px] uppercase tracking-wide text-sky-400/70"></p>
+                  <p id="hero-cost-yr" class="mt-1 text-2xl font-bold tracking-tight text-sky-200"></p>
                   <p id="hero-cost-sub" class="mt-2 space-y-0.5 text-xs text-slate-400"></p>
                 </div>
                 <div
@@ -180,7 +199,8 @@
                   <p class="text-[11px] font-semibold uppercase tracking-wider text-emerald-300/90">
                     Total CO₂ emissions
                   </p>
-                  <p id="hero-co2-yr" class="mt-2 text-2xl font-bold tracking-tight text-emerald-200"></p>
+                  <p id="hero-co2-period-tag" class="mt-1 text-[10px] uppercase tracking-wide text-emerald-400/70"></p>
+                  <p id="hero-co2-yr" class="mt-1 text-2xl font-bold tracking-tight text-emerald-200"></p>
                   <p id="hero-co2-sub" class="mt-2 space-y-0.5 text-xs text-slate-400"></p>
                 </div>
               </div>

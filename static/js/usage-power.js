@@ -1,5 +1,6 @@
 (function () {
   const selectEl = document.getElementById("usage-scope-select");
+  const periodSelect = document.getElementById("usage-period-select");
   const canvas = document.getElementById("usage-pie-chart");
   const emptyEl = document.getElementById("usage-pie-empty");
   const subtitleEl = document.getElementById("usage-power-subtitle");
@@ -9,16 +10,36 @@
   const breakdownCards = document.getElementById("usage-breakdown-cards");
   const usageRightEmpty = document.getElementById("usage-right-empty");
   const usageHeroStats = document.getElementById("usage-hero-stats");
+  const heroCostPeriodTag = document.getElementById("hero-cost-period-tag");
   const heroCostYr = document.getElementById("hero-cost-yr");
   const heroCostSub = document.getElementById("hero-cost-sub");
+  const heroCo2PeriodTag = document.getElementById("hero-co2-period-tag");
   const heroCo2Yr = document.getElementById("hero-co2-yr");
   const heroCo2Sub = document.getElementById("hero-co2-sub");
+  const totalsKwhDaily = document.getElementById("totals-kwh-daily");
+  const totalsKwhLabel = document.getElementById("totals-kwh-label");
   const rateInput = document.getElementById("settings-rate");
   const regionSelect = document.getElementById("settings-region");
   const settingsSaveBtn = document.getElementById("settings-save");
 
   const DAYS_MONTH = 365 / 12;
+  const DAYS_QUARTER = 365 / 4;
+  const DAYS_HALF = 365 / 2;
   const DAYS_YEAR = 365;
+
+  /** @type {Record<string, { days: number, tag: string }>} */
+  const PERIOD_META = {
+    "1d": { days: 1, tag: "Per day" },
+    "1m": { days: DAYS_MONTH, tag: "Per month (~30.44 d)" },
+    "3m": { days: DAYS_QUARTER, tag: "Per 3 months (quarter)" },
+    "6m": { days: DAYS_HALF, tag: "Per 6 months" },
+    "1y": { days: DAYS_YEAR, tag: "Per year (365 d)" },
+  };
+
+  function getPeriodMeta() {
+    const v = periodSelect?.value || "1y";
+    return PERIOD_META[v] || PERIOD_META["1y"];
+  }
 
   let chartInstance = null;
   let catalogCache = null;
@@ -210,6 +231,8 @@
     if (usageHeroStats) usageHeroStats.classList.remove("hidden");
     if (totalsKwhWrap) totalsKwhWrap.classList.remove("hidden");
 
+    const { days: mult, tag: pTag } = getPeriodMeta();
+
     let sumK = 0;
     let sumCostDay = 0;
     let sumCo2Day = 0;
@@ -222,9 +245,9 @@
       sumCostDay += costDay;
       sumCo2Day += co2Day;
 
-      const costMo = row.kwhDay * DAYS_MONTH * rate;
-      const costYr = row.kwhDay * DAYS_YEAR * rate;
-      const co2Yr = row.kwhDay * DAYS_YEAR * co2KgPerKwh;
+      const kP = row.kwhDay * mult;
+      const costP = costDay * mult;
+      const co2P = co2Day * mult;
 
       const card = document.createElement("div");
       card.className =
@@ -236,33 +259,36 @@
       card.innerHTML = `
         <p class="truncate font-medium text-slate-100">${escapeHtml(row.name)}</p>
         ${roomLine}
-        <dl class="mt-2.5 grid grid-cols-2 gap-x-2 gap-y-1.5 text-[11px]">
-          <dt class="text-slate-500">kWh/day</dt><dd class="text-right font-mono text-slate-300">${fmtNum(row.kwhDay, 3)}</dd>
-          <dt class="text-slate-500">₹/day</dt><dd class="text-right font-mono text-sky-300/90">${fmtMoney(costDay)}</dd>
-          <dt class="text-slate-500">CO₂ kg/d</dt><dd class="text-right font-mono text-emerald-300/80">${fmtNum(co2Day, 3)}</dd>
-          <dt class="text-slate-500">₹/year</dt><dd class="text-right font-mono text-slate-300">${fmtMoney(costYr)}</dd>
+        <p class="mt-1 text-[10px] uppercase tracking-wide text-slate-500">${escapeHtml(pTag)}</p>
+        <dl class="mt-2 grid grid-cols-2 gap-x-2 gap-y-1.5 text-[11px]">
+          <dt class="text-slate-500">Energy (kWh)</dt><dd class="text-right font-mono text-slate-300">${fmtNum(kP, 3)}</dd>
+          <dt class="text-slate-500">Cost (₹)</dt><dd class="text-right font-mono text-sky-300/90">${fmtMoney(costP)}</dd>
+          <dt class="text-slate-500">CO₂ (kg)</dt><dd class="text-right font-mono text-emerald-300/80">${fmtNum(co2P, 3)}</dd>
+          <dt class="text-slate-500">Basis</dt><dd class="text-right font-mono text-slate-500">${fmtNum(row.kwhDay, 3)} kWh/d</dd>
         </dl>`;
       breakdownCards.appendChild(card);
     }
 
-    const kMo = sumK * DAYS_MONTH;
-    const kYr = sumK * DAYS_YEAR;
     if (totalsKwh) {
-      totalsKwh.innerHTML = `${fmtNum(sumK, 3)} <span class="text-slate-500">kWh/day</span> · ${fmtNum(kMo, 2)} <span class="text-slate-500">kWh/mo</span> · ${fmtNum(kYr, 2)} <span class="text-slate-500">kWh/yr</span>`;
+      totalsKwh.innerHTML = `${fmtNum(sumK * mult, 3)} <span class="text-slate-400">kWh</span> <span class="text-slate-500">· ${escapeHtml(pTag)}</span>`;
     }
+    if (totalsKwhDaily) {
+      totalsKwhDaily.textContent = `Average basis: ${fmtNum(sumK, 3)} kWh/day across ${rows.length} appliance(s)`;
+    }
+    if (totalsKwhLabel) totalsKwhLabel.textContent = `Energy (${pTag})`;
 
-    const cMo = sumCostDay * DAYS_MONTH;
-    const cYr = sumCostDay * DAYS_YEAR;
-    if (heroCostYr) heroCostYr.textContent = `${fmtMoney(cYr)} / year`;
+    const costP = sumCostDay * mult;
+    const co2P = sumCo2Day * mult;
+    if (heroCostPeriodTag) heroCostPeriodTag.textContent = pTag;
+    if (heroCostYr) heroCostYr.textContent = fmtMoney(costP);
     if (heroCostSub) {
-      heroCostSub.innerHTML = `<span class="block">${fmtMoney(sumCostDay)} per day</span><span class="block">${fmtMoney(cMo)} per month (~30.4 d)</span>`;
+      heroCostSub.innerHTML = `<span class="block">≈ ${fmtMoney(sumCostDay)} per day at this usage</span><span class="block text-slate-500">Other periods: change “Show amounts for” above</span>`;
     }
 
-    const co2Mo = sumCo2Day * DAYS_MONTH;
-    const co2Yr = sumCo2Day * DAYS_YEAR;
-    if (heroCo2Yr) heroCo2Yr.textContent = `${fmtNum(co2Yr, 2)} kg / year`;
+    if (heroCo2PeriodTag) heroCo2PeriodTag.textContent = pTag;
+    if (heroCo2Yr) heroCo2Yr.textContent = `${fmtNum(co2P, 2)} kg`;
     if (heroCo2Sub) {
-      heroCo2Sub.innerHTML = `<span class="block">${fmtNum(sumCo2Day, 3)} kg per day</span><span class="block">${fmtNum(co2Mo, 2)} kg per month</span>`;
+      heroCo2Sub.innerHTML = `<span class="block">≈ ${fmtNum(sumCo2Day, 3)} kg CO₂ per day</span><span class="block text-slate-500">Using selected grid factor (kg/kWh)</span>`;
     }
 
     const roomLabel =
@@ -302,7 +328,7 @@
       emptyEl.classList.remove("hidden");
       if (subtitleEl && collectRows(lastState, scope).length === 0) {
         subtitleEl.textContent =
-          "Energy, cost, and CO₂ use your tariff and regional emission factor. Month ≈ 30.44 days, year = 365 days.";
+          "Add appliances in Audit to see energy split. Totals scale with “Show amounts for” (day / month / quarter / half-year / year).";
       }
       return;
     }
@@ -312,6 +338,9 @@
 
     const labels = entries.map(([k]) => k);
     const data = entries.map(([, v]) => v);
+    const piePeriod = getPeriodMeta();
+    const periodMult = piePeriod.days;
+    const periodTag = piePeriod.tag;
 
     const ctx = canvas.getContext("2d");
     chartInstance = new Chart(ctx, {
@@ -345,15 +374,15 @@
           tooltip: {
             callbacks: {
               label(ctx) {
-                const kwh = ctx.raw;
+                const kwhDay = ctx.raw;
                 const sum = data.reduce((s, x) => s + x, 0);
-                const pct = sum > 0 ? ((kwh / sum) * 100).toFixed(1) : "0";
-                const cost = kwh * rate;
-                const co2 = kwh * co2KgPerKwh;
+                const pct = sum > 0 ? ((kwhDay / sum) * 100).toFixed(1) : "0";
+                const kwhP = kwhDay * periodMult;
+                const costP = kwhDay * rate * periodMult;
+                const co2P = kwhDay * co2KgPerKwh * periodMult;
                 return [
-                  `${ctx.label}: ${kwh.toFixed(3)} kWh/day (${pct}%)`,
-                  `Cost: ${fmtMoney(cost)}/day (~${fmtMoney(kwh * DAYS_MONTH * rate)}/mo)`,
-                  `CO₂: ${co2.toFixed(3)} kg/day (~${(co2 * DAYS_YEAR).toFixed(1)} kg/yr)`,
+                  `${ctx.label}: ${kwhDay.toFixed(3)} kWh/day basis (${pct}%)`,
+                  `${periodTag}: ${kwhP.toFixed(3)} kWh · ${fmtMoney(costP)} · ${co2P.toFixed(3)} kg CO₂`,
                 ];
               },
             },
@@ -388,6 +417,7 @@
   function init() {
     if (!selectEl || typeof Chart === "undefined") return;
     selectEl.addEventListener("change", updateChart);
+    if (periodSelect) periodSelect.addEventListener("change", updateChart);
     if (regionSelect) {
       regionSelect.addEventListener("change", () => {
         if (settingsBundle) {
