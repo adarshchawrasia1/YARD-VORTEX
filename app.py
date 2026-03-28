@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 CATALOG_PATH = DATA / "catalog.json"
 STORE_PATH = DATA / "store.json"
+SETTINGS_PATH = DATA / "settings.json"
+EMISSION_PATH = DATA / "emission_regions.json"
 
 app = Flask(__name__)
 
@@ -65,6 +67,65 @@ def api_catalog():
 @app.get("/api/state")
 def api_state():
     return jsonify(_load_store())
+
+
+def _load_emission_regions() -> dict:
+    return _read_json(EMISSION_PATH)
+
+
+def _default_settings() -> dict:
+    return {"rate_inr_per_kwh": 8.0, "region_id": "in_grid_avg"}
+
+
+def _load_settings() -> dict:
+    if not SETTINGS_PATH.exists():
+        d = _default_settings()
+        _write_json(SETTINGS_PATH, d)
+        return d.copy()
+    data = _read_json(SETTINGS_PATH)
+    out = _default_settings()
+    out.update({k: data[k] for k in out if k in data})
+    return out
+
+
+def _save_settings(data: dict) -> None:
+    _write_json(SETTINGS_PATH, data)
+
+
+@app.get("/api/settings")
+def api_get_settings():
+    settings = _load_settings()
+    regions = _load_emission_regions().get("regions") or []
+    valid_ids = {r["id"] for r in regions if r.get("id")}
+    if settings.get("region_id") not in valid_ids and regions:
+        settings = settings.copy()
+        settings["region_id"] = regions[0]["id"]
+    return jsonify({"settings": settings, "regions": regions})
+
+
+@app.put("/api/settings")
+def api_put_settings():
+    body = request.get_json(silent=True) or {}
+    regions = _load_emission_regions().get("regions") or []
+    valid_ids = {r["id"] for r in regions if r.get("id")}
+
+    rate = body.get("rate_inr_per_kwh")
+    if rate is None:
+        return jsonify({"error": "rate_inr_per_kwh required"}), 400
+    try:
+        rate_f = float(rate)
+    except (TypeError, ValueError):
+        return jsonify({"error": "rate_inr_per_kwh must be a number"}), 400
+    if rate_f < 0:
+        return jsonify({"error": "rate_inr_per_kwh must be >= 0"}), 400
+
+    region_id = body.get("region_id") or "in_grid_avg"
+    if region_id not in valid_ids:
+        return jsonify({"error": "unknown region_id"}), 400
+
+    saved = {"rate_inr_per_kwh": rate_f, "region_id": region_id}
+    _save_settings(saved)
+    return jsonify({"settings": saved, "regions": regions})
 
 
 def _room_id_from_name(name: str) -> str:

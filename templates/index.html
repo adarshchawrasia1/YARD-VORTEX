@@ -36,7 +36,7 @@
       </button>
     </header>
 
-    <main class="mx-auto max-w-2xl px-4 py-8">
+    <main class="mx-auto max-w-6xl px-4 py-8">
       <h1 class="mb-4 text-sm font-medium uppercase tracking-wider text-slate-500">Audit Usage</h1>
 
       <section
@@ -65,35 +65,126 @@
       <section class="mt-10" aria-labelledby="usage-power-heading">
         <h2
           id="usage-power-heading"
-          class="mb-3 text-sm font-medium uppercase tracking-wider text-slate-500"
+          class="mb-4 text-sm font-medium uppercase tracking-wider text-slate-500"
         >
           Usage &amp; Power
         </h2>
-        <div
-          class="rounded-xl border border-border bg-panel/50 p-4 shadow-inner"
-        >
-          <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div class="space-y-1">
-              <label for="usage-scope-select" class="text-xs text-slate-500">Show usage for</label>
-              <select
-                id="usage-scope-select"
-                class="min-w-[12rem] rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+        <div class="rounded-xl border border-border bg-panel/50 p-5 shadow-inner lg:p-6">
+          <div class="grid gap-8 lg:grid-cols-2 lg:gap-10 lg:items-start">
+            <!-- Column 1: room, grid, tariff, chart -->
+            <div class="flex flex-col gap-5">
+              <div>
+                <h3 class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  Room
+                </h3>
+                <label for="usage-scope-select" class="sr-only">Show usage for</label>
+                <select
+                  id="usage-scope-select"
+                  class="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                >
+                  <option value="home">Home (entire house)</option>
+                </select>
+              </div>
+
+              <div>
+                <h3 class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  Grid / region (emission factor)
+                </h3>
+                <p class="mb-2 text-xs leading-relaxed text-slate-500">
+                  Pick the mix that best matches your state or national grid. The factor is kg CO₂ per kWh (illustrative).
+                </p>
+                <label for="settings-region" class="sr-only">Grid region</label>
+                <select
+                  id="settings-region"
+                  class="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                ></select>
+              </div>
+
+              <div class="flex flex-wrap items-end gap-3">
+                <div class="min-w-[6rem] flex-1 space-y-1">
+                  <label for="settings-rate" class="text-[11px] font-medium uppercase tracking-wide text-slate-500"
+                    >Tariff (₹ / kWh)</label
+                  >
+                  <input
+                    id="settings-rate"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    class="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-slate-100 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                  />
+                </div>
+                <button
+                  type="button"
+                  id="settings-save"
+                  class="rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-sky-500"
+                >
+                  Save settings
+                </button>
+              </div>
+
+              <p id="usage-power-subtitle" class="text-xs leading-relaxed text-slate-500">
+                Month ≈ 30.44 days · Year = 365 days. Hover the chart for cost and CO₂ per category.
+              </p>
+
+              <div
+                id="totals-kwh-wrap"
+                class="hidden rounded-lg border border-border/80 bg-surface/50 px-3 py-2.5"
               >
-                <option value="home">Home (entire house)</option>
-              </select>
+                <span class="text-[11px] font-medium uppercase tracking-wide text-slate-500">Energy (selection)</span>
+                <p id="totals-kwh" class="mt-1 font-mono text-sm text-slate-200"></p>
+              </div>
+
+              <div
+                class="relative mx-auto flex h-[220px] w-[220px] shrink-0 items-center justify-center sm:h-[240px] sm:w-[240px]"
+              >
+                <canvas id="usage-pie-chart" class="max-h-full max-w-full"></canvas>
+                <p
+                  id="usage-pie-empty"
+                  class="hidden absolute inset-0 flex items-center justify-center px-4 text-center text-sm leading-snug text-slate-500"
+                >
+                  No energy mix to chart yet — add appliances in Audit Usage above.
+                </p>
+              </div>
             </div>
-            <p id="usage-power-subtitle" class="text-xs text-slate-500">
-              Estimated share of daily energy (kWh) by appliance category
-            </p>
-          </div>
-          <div class="relative mx-auto max-w-md">
-            <canvas id="usage-pie-chart" height="280" width="280" class="mx-auto max-h-[min(50vh,320px)]"></canvas>
-            <p
-              id="usage-pie-empty"
-              class="hidden py-12 text-center text-sm text-slate-500"
-            >
-              No appliance data for this selection — add appliances above or pick another room.
-            </p>
+
+            <!-- Column 2: appliance cards + hero totals -->
+            <div class="flex min-h-0 flex-col gap-5">
+              <div>
+                <h3 class="mb-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  Appliances
+                </h3>
+                <p id="usage-right-empty" class="rounded-lg border border-dashed border-border bg-surface/30 px-4 py-10 text-center text-sm text-slate-500">
+                  No appliances in this selection. Choose a room or add devices above.
+                </p>
+                <div id="usage-breakdown-wrap" class="hidden">
+                  <div
+                    id="usage-breakdown-cards"
+                    class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+                  ></div>
+                </div>
+              </div>
+
+              <div id="usage-hero-stats" class="hidden grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div
+                  class="rounded-xl border border-sky-800/40 bg-gradient-to-br from-sky-950/50 to-surface/90 p-4 shadow-lg shadow-sky-950/20"
+                >
+                  <p class="text-[11px] font-semibold uppercase tracking-wider text-sky-300/90">
+                    Total electricity cost
+                  </p>
+                  <p id="hero-cost-yr" class="mt-2 text-2xl font-bold tracking-tight text-sky-200"></p>
+                  <p id="hero-cost-sub" class="mt-2 space-y-0.5 text-xs text-slate-400"></p>
+                </div>
+                <div
+                  class="rounded-xl border border-emerald-800/35 bg-gradient-to-br from-emerald-950/40 to-surface/90 p-4 shadow-lg shadow-emerald-950/15"
+                >
+                  <p class="text-[11px] font-semibold uppercase tracking-wider text-emerald-300/90">
+                    Total CO₂ emissions
+                  </p>
+                  <p id="hero-co2-yr" class="mt-2 text-2xl font-bold tracking-tight text-emerald-200"></p>
+                  <p id="hero-co2-sub" class="mt-2 space-y-0.5 text-xs text-slate-400"></p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

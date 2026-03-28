@@ -35,6 +35,42 @@
           "standby_hours_daily": null
         }
       ]
+    },
+    {
+      "id": "living",
+      "name": "Living",
+      "appliances": [
+        {
+          "instance_id": "a933fc89-0851-45d6-84d4-dba78f489606",
+          "catalog_id": "mw_25l",
+          "name": "~25 L",
+          "active_w": 1000.0,
+          "active_hours_daily": 13.0,
+          "standby_when_inactive": false,
+          "standby_w": null,
+          "standby_hours_daily": null
+        },
+        {
+          "instance_id": "6784b860-982f-46c4-bf33-67ed76fb3a41",
+          "catalog_id": "tv_led_55",
+          "name": "LED ~55\"",
+          "active_w": 100.0,
+          "active_hours_daily": 24.0,
+          "standby_when_inactive": true,
+          "standby_w": 0.5,
+          "standby_hours_daily": 0.0
+        },
+        {
+          "instance_id": "114233fd-3268-4885-9f94-60a9a8cbc511",
+          "catalog_id": "ac_split_1_5",
+          "name": "Split 1.5 ton",
+          "active_w": 1500.0,
+          "active_hours_daily": 13.0,
+          "standby_when_inactive": false,
+          "standby_w": null,
+          "standby_hours_daily": null
+        }
+      ]
     }
   ]
 }
