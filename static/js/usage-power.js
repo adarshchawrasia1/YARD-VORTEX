@@ -18,6 +18,7 @@
   const heroCo2Sub = document.getElementById("hero-co2-sub");
   const totalsKwhDaily = document.getElementById("totals-kwh-daily");
   const totalsKwhLabel = document.getElementById("totals-kwh-label");
+  const usageWasteSummary = document.getElementById("usage-waste-summary");
   const rateInput = document.getElementById("settings-rate");
   const regionSelect = document.getElementById("settings-region");
   const settingsSaveBtn = document.getElementById("settings-save");
@@ -94,6 +95,40 @@
     return (aw * ah + sw * sh) / 1000;
   }
 
+  /** kWh/day from standby draw only (0 if standby not modeled). */
+  function standbyKwhDay(a) {
+    if (a.standby_when_inactive === false) return 0;
+    const sw = Number(a.standby_w) || 0;
+    const sh = Number(a.standby_hours_daily) || 0;
+    return (sw * sh) / 1000;
+  }
+
+  /**
+   * Composite waste score 0–1: blends energy impact (proxy for cost + CO₂) and standby share.
+   * Cost and CO₂ are both linear in kWh with house-wide constants, so one normalized kWh term covers both.
+   */
+  const WASTE_WEIGHT_IMPACT = 2 / 3;
+  const WASTE_WEIGHT_STANDBY = 1 / 3;
+
+  function enrichRowsWithWasteScores(rows) {
+    if (!rows.length) return [];
+    const maxK = Math.max(...rows.map((r) => r.kwhDay), 0);
+    const denom = maxK > 1e-12 ? maxK : 1;
+    const scored = rows.map((r) => {
+      const normImpact = r.kwhDay / denom;
+      const normStandby = Math.min(1, Math.max(0, r.standbyShare));
+      const wasteScore =
+        WASTE_WEIGHT_IMPACT * normImpact + WASTE_WEIGHT_STANDBY * normStandby;
+      return { ...r, wasteScore };
+    });
+    scored.sort((a, b) => {
+      const d = b.wasteScore - a.wasteScore;
+      if (Math.abs(d) > 1e-9) return d;
+      return b.kwhDay - a.kwhDay;
+    });
+    return scored.map((r, i) => ({ ...r, wasteRank: i + 1 }));
+  }
+
   function aggregateByCategory(state, scope, idToCat) {
     const totals = {};
     const rooms =
@@ -121,10 +156,14 @@
     for (const room of rooms) {
       for (const a of room.appliances || []) {
         const k = dailyKwh(a);
+        const ks = standbyKwhDay(a);
+        const standbyShare = k > 1e-12 ? Math.min(1, ks / k) : 0;
         rows.push({
           name: a.name || "Appliance",
           roomName: room.name,
           kwhDay: k,
+          kwhStandbyDay: ks,
+          standbyShare,
         });
       }
     }
@@ -215,13 +254,15 @@
     if (!lastState || !breakdownWrap || !breakdownCards) return;
 
     const { rate, co2KgPerKwh } = currentRateAndCo2();
-    const rows = collectRows(lastState, scope);
+    const rawRows = collectRows(lastState, scope);
+    const rows = enrichRowsWithWasteScores(rawRows);
 
     if (rows.length === 0) {
       if (totalsKwhWrap) totalsKwhWrap.classList.add("hidden");
       if (usageHeroStats) usageHeroStats.classList.add("hidden");
       breakdownWrap.classList.add("hidden");
       breakdownCards.innerHTML = "";
+      if (usageWasteSummary) usageWasteSummary.textContent = "";
       if (usageRightEmpty) usageRightEmpty.classList.remove("hidden");
       return;
     }
@@ -238,6 +279,14 @@
     let sumCo2Day = 0;
     breakdownCards.innerHTML = "";
 
+    const topNames = rows
+      .slice(0, 3)
+      .map((r) => (scope === "home" ? `${r.name} (${r.roomName})` : r.name))
+      .map((label) => escapeHtml(label));
+    if (usageWasteSummary) {
+      usageWasteSummary.innerHTML = `<span class="text-base font-bold text-amber-100">Waste score ranking</span> — sorted worst first. Score blends energy (cost &amp; CO₂ scale with kWh) and standby share of that energy.<br /><span class="mt-1.5 inline-block text-base font-semibold text-amber-200">Top offenders:</span> <span class="text-base font-mono font-semibold text-amber-50">${topNames.join(" · ")}</span>`;
+    }
+
     for (const row of rows) {
       sumK += row.kwhDay;
       const costDay = row.kwhDay * rate;
@@ -249,9 +298,25 @@
       const costP = costDay * mult;
       const co2P = co2Day * mult;
 
+      const rank = row.wasteRank;
+      const scorePct = Math.round(row.wasteScore * 100);
+      const standbyPct = Math.round(row.standbyShare * 100);
+
+      let cardFrame =
+        "rounded-lg border px-3 py-3 shadow-sm transition-colors";
+      if (rank === 1) {
+        cardFrame +=
+          " border-amber-500/55 bg-gradient-to-br from-amber-950/35 to-surface/80 ring-1 ring-amber-500/30";
+      } else if (rank === 2) {
+        cardFrame += " border-orange-600/45 bg-orange-950/20";
+      } else if (rank === 3) {
+        cardFrame += " border-amber-800/40 bg-amber-950/15";
+      } else {
+        cardFrame += " border-border/90 bg-surface/70";
+      }
+
       const card = document.createElement("div");
-      card.className =
-        "rounded-lg border border-border/90 bg-surface/70 px-3 py-3 shadow-sm";
+      card.className = cardFrame;
       const roomLine =
         scope === "home"
           ? `<p class="truncate text-[11px] text-slate-500">${escapeHtml(row.roomName)}</p>`
@@ -260,7 +325,21 @@
         <p class="truncate font-medium text-slate-100">${escapeHtml(row.name)}</p>
         ${roomLine}
         <p class="mt-1 text-[10px] uppercase tracking-wide text-slate-500">${escapeHtml(pTag)}</p>
-        <dl class="mt-2 grid grid-cols-2 gap-x-2 gap-y-1.5 text-[11px]">
+        <div class="mt-3 grid grid-cols-3 gap-2 rounded-lg border border-slate-600/70 bg-slate-950/70 px-2 py-3 sm:px-3">
+          <div class="text-center sm:text-left">
+            <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Rank</p>
+            <p class="mt-0.5 font-mono text-2xl font-bold tabular-nums text-amber-300 sm:text-3xl">#${rank}</p>
+          </div>
+          <div class="text-center">
+            <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Score</p>
+            <p class="mt-0.5 font-mono text-2xl font-bold tabular-nums text-amber-200 sm:text-3xl">${scorePct}<span class="align-top text-base font-semibold text-slate-500">/100</span></p>
+          </div>
+          <div class="text-center sm:text-right">
+            <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Standby</p>
+            <p class="mt-0.5 font-mono text-2xl font-bold tabular-nums text-slate-200 sm:text-3xl">${standbyPct}<span class="text-lg font-semibold text-slate-500">%</span></p>
+          </div>
+        </div>
+        <dl class="mt-3 grid grid-cols-2 gap-x-2 gap-y-1.5 text-[11px]">
           <dt class="text-slate-500">Energy (kWh)</dt><dd class="text-right font-mono text-slate-300">${fmtNum(kP, 3)}</dd>
           <dt class="text-slate-500">Cost (₹)</dt><dd class="text-right font-mono text-sky-300/90">${fmtMoney(costP)}</dd>
           <dt class="text-slate-500">CO₂ (kg)</dt><dd class="text-right font-mono text-emerald-300/80">${fmtNum(co2P, 3)}</dd>
