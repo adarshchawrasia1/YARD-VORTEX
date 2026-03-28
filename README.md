@@ -27,11 +27,14 @@ Open **http://127.0.0.1:5000** (or http://localhost:5000).
 
 ## What the app does today
 
+- **Header navigation:** The **hamburger (top right)** opens a panel listing main sections — **Audit Usage**, **Usage & Power**, **Swap & Save**, and **What If**. Choosing one **smooth-scrolls** to that block on the same page and **closes** the menu (also closes on backdrop tap, the close control, or **Esc**).
 - **Audit Usage tree:** `Home` → rooms (add/remove/rename) → appliances per room.
 - **Catalog:** Two-step picker — **category** (e.g. Bulb, TV) then **model / wattage** variant. **Custom appliance** uses a free-form name and default wattage hints.
 - **Usage & power (per add):** Daily **active hours**, **active power (W)**, optional **standby when inactive**; if standby applies, **standby hours/day** and **standby power (W)**. If standby is off, the audit shows **–** for standby fields.
 - **Edit:** Pencil icons on rooms and appliances; trash deletes with a confirmation.
-- **Usage & Power:** Pie chart of **daily kWh** by **catalog category**; tooltips include **₹/day** and **CO₂** (from your tariff and region). **Tariff (₹/kWh)** and **regional grid** (kg CO₂/kWh from `data/emission_regions.json`) with **Save settings**. **Totals** (energy, cost, CO₂ for day / month / year) and a **per-appliance** table for the current scope.
+- **Usage & Power:** Pie chart of **daily kWh** by **catalog category**; **category labels** are listed **under** the chart (color swatch + name + share %); Chart.js tooltips still show **₹** and **CO₂** for the selected period. **Tariff (₹/kWh)** and **regional grid** (kg CO₂/kWh from `data/emission_regions.json`) with **Save settings**. **Totals** (energy, cost, CO₂ for day / month / year) and a **per-appliance** breakdown for the current scope.
+- **Swap & Save:** For high-waste devices, suggests **same-category** catalog alternatives with modeled **annual ₹ and CO₂** savings. Includes a **“you will be able to buy…”** block with example purchase timelines from combined swap savings.
+- **What If:** Per-appliance sliders to model **reduction in active hours/day**; shows combined annual savings and the same style **dream purchase** callout from the scenario total.
 
 Data persists in **`data/store.json`**. The catalog is edited in **`data/catalog.json`** (nested `categories` → `items` with `id`, `name`, `default_active_w`, `default_standby_w`).
 
@@ -66,7 +69,7 @@ Data persists in **`data/store.json`**. The catalog is edited in **`data/catalog
 ## Project layout
 
 ```
-phantom/
+.
 ├── app.py              # Flask server + routes
 ├── requirements.txt
 ├── data/
@@ -75,9 +78,10 @@ phantom/
 │   ├── settings.json       # Tariff + region_id
 │   └── emission_regions.json
 ├── templates/
-│   └── index.html
+│   └── index.html          # layout, section anchors, nav drawer, Chart.js
 └── static/
     └── js/
         ├── audit.js
-        └── usage-power.js   # pie chart (Chart.js CDN)
+        ├── usage-power.js      # pie chart + HTML legend under chart
+        └── swap-whatif.js      # Swap & Save + What If + dream purchase copy
 ```

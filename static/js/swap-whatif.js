@@ -201,17 +201,19 @@
 
   function dreamLinesHtml(annualSavingsInr, annualCo2Kg) {
     if (!annualSavingsInr || annualSavingsInr <= 0) {
-      return `<p class="text-xs text-slate-500">Drag sliders to see savings — then purchase timelines (e.g. iPhone) appear here.</p>`;
+      return `<p class="text-sm leading-relaxed text-slate-400 sm:text-base">Adjust sliders or swap ideas to see savings — then timelines for what you could buy (e.g. iPhone) appear here.</p>`;
     }
     const parts = DREAM_ITEMS.map((item) => {
       const t = timeToAffordLabel(item.priceInr, annualSavingsInr);
       if (!t) return "";
-      return `<span class="inline-block rounded-lg border border-slate-600/50 bg-slate-900/40 px-2 py-1 text-[11px] text-slate-300"><span class="font-medium text-sky-300">${escapeHtml(item.name)}</span> in <span class="font-mono text-emerald-300/90">${escapeHtml(t)}</span></span>`;
+      return `<span class="inline-block rounded-xl border border-sky-500/25 bg-slate-900/55 px-3.5 py-2.5 text-sm text-slate-100 shadow-sm ring-1 ring-white/5 sm:px-4 sm:py-3 sm:text-base"><span class="font-semibold text-sky-300">${escapeHtml(item.name)}</span> <span class="text-slate-500">in</span> <span class="font-mono font-medium text-emerald-300/95">${escapeHtml(t)}</span></span>`;
     }).filter(Boolean);
     return `
-      <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Combined scenario · ~${fmtMoney(annualSavingsInr)}/yr · ~${fmtNum(annualCo2Kg, 0)} kg CO₂/yr</p>
-      <p class="mt-2 text-xs leading-snug text-slate-400">If you bank this total, you could afford for example:</p>
-      <div class="mt-2 flex flex-wrap gap-2">${parts.join("")}</div>`;
+      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-sky-400/85 sm:text-sm">Savings banked</p>
+      <h3 class="mt-2 text-xl font-bold tracking-tight text-slate-50 sm:text-2xl">You will be able to buy…</h3>
+      <p class="mt-2 text-base text-slate-300 sm:text-lg">~${fmtMoney(annualSavingsInr)}<span class="text-slate-500">/yr</span> · ~${fmtNum(annualCo2Kg, 0)} <span class="text-emerald-300/90">kg CO₂/yr</span> avoided</p>
+      <p class="mt-5 text-sm font-medium text-slate-300 sm:text-base">For example, if you set aside that total:</p>
+      <div class="mt-3 flex flex-wrap gap-3">${parts.join("")}</div>`;
   }
 
   function renderSwapSave(ctx) {

@@ -2,6 +2,7 @@
   const selectEl = document.getElementById("usage-scope-select");
   const periodSelect = document.getElementById("usage-period-select");
   const canvas = document.getElementById("usage-pie-chart");
+  const pieLegendEl = document.getElementById("usage-pie-legend");
   const emptyEl = document.getElementById("usage-pie-empty");
   const subtitleEl = document.getElementById("usage-power-subtitle");
   const totalsKwhWrap = document.getElementById("totals-kwh-wrap");
@@ -408,6 +409,10 @@
     if (entries.length === 0) {
       canvas.classList.add("hidden");
       emptyEl.classList.remove("hidden");
+      if (pieLegendEl) {
+        pieLegendEl.innerHTML = "";
+        pieLegendEl.classList.add("hidden");
+      }
       if (subtitleEl && collectRows(lastState, scope).length === 0) {
         subtitleEl.textContent =
           "Add appliances in Audit to see energy split. Totals scale with “Show amounts for” (day / month / quarter / half-year / year).";
@@ -420,6 +425,7 @@
 
     const labels = entries.map(([k]) => k);
     const data = entries.map(([, v]) => v);
+    const labelColors = labels.map((_, i) => COLORS[i % COLORS.length]);
     const piePeriod = getPeriodMeta();
     const periodMult = piePeriod.days;
     const periodTag = piePeriod.tag;
@@ -432,7 +438,7 @@
         datasets: [
           {
             data,
-            backgroundColor: labels.map((_, i) => COLORS[i % COLORS.length]),
+            backgroundColor: labelColors,
             borderColor: "#1a222d",
             borderWidth: 2,
           },
@@ -445,13 +451,7 @@
         layout: { padding: 6 },
         plugins: {
           legend: {
-            position: "bottom",
-            labels: {
-              color: "#cbd5e1",
-              padding: 8,
-              font: { size: 10 },
-              boxWidth: 12,
-            },
+            display: false,
           },
           tooltip: {
             callbacks: {
@@ -472,6 +472,20 @@
         },
       },
     });
+
+    if (pieLegendEl) {
+      const sum = data.reduce((s, x) => s + x, 0);
+      pieLegendEl.innerHTML = labels
+        .map((label, i) => {
+          const pct = sum > 0 ? ((data[i] / sum) * 100).toFixed(1) : "0";
+          return `<li class="flex items-start gap-2.5 py-0.5">
+            <span class="mt-1.5 h-3 w-3 shrink-0 rounded-sm border border-slate-800" style="background-color:${labelColors[i]}"></span>
+            <span class="min-w-0 flex-1 text-sm leading-snug text-slate-200"><span class="font-medium">${escapeHtml(label)}</span> <span class="text-slate-500">(${pct}%)</span></span>
+          </li>`;
+        })
+        .join("");
+      pieLegendEl.classList.remove("hidden");
+    }
   }
 
   function ensureCatalog() {
